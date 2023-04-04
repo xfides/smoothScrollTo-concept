@@ -1,2 +1,157 @@
-# smoothScrollTo Function Concept
-Research how to make smoothScroll to a certain target function + my notes about it (in progress)
+# smoothScrollTo() Function Concept
+
+## Event Listener
+
+First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern)
+
+```js
+// I prefer to store all the DOM selector strings into a single object
+const DOM = {
+  nav: "navigation",
+  navLink: "navigation__link",
+};
+
+const navigation = document.querySelector(`.${DOM.nav}`);
+```
+Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it:
+
+``` js
+// we can't be sure that navigation element exists, so we need optional chaining
+navigation?.addEventListener("click", (e) => {
+  e.preventDefault();
+
+});
+```
+
+Here, we implement the event delegation pattern: we check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function and do nothing
+
+```js
+navigation?.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const currentTarget = e.target;
+
+  // we must assure TS that currentTarget has an Element type
+  // if it's not of the Element type, it's a strange error, and the function will return.
+  if (!(currentTarget instanceof Element)) {
+    return;
+  }
+
+  // also we interested in a link we actually click
+  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
+  
+  // all the magic will be here on link click
+});
+```
+
+## Get scrollTo target
+
+The purpose of the smoothScrollTo() function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function that will do this
+
+```js
+function getScrollTargetElem() {}
+```
+
+What should it do:
+
+* get the link we've clicked;
+* obtain the value of the href attribute, which can be the actual ID of the element we want to scroll to or can be an external link or simply a plain text;
+* verify if it's a valid value to grab the element by:
+  * if not, return null (clearly, we have no element);
+  * if yes, grab the target element and return it;
+
+### Get the clicked link
+
+We captured a link we've clicked here:
+
+```js
+const currentLink = currentTarget.closest(`.${DOM.navLink}`);
+```
+
+We can't truly guarantee in TypeScript (without using dirty hacks) that JavaScript will 100% find this element in the DOM. That's why the implicit type of `currentLink` is `Element|null`.
+
+So, we can pass it as an argument when `getScrollTargetElem` is called inside the event handler. Now, let's set it as a function parameter:
+
+```js
+function getScrollTargetElem(clickedLinkElem: Element | null) {
+  if (!clickedLinkElem) {
+    return null;
+  }
+  
+  ...
+}
+```
+
+### Obtain and validate link `href` value
+
+The simplest part is grabbing the link's `href` value (and if there isn't any, we can't proceed further):
+
+```js
+function getScrollTargetElem(clickedLinkElem: Element | null) {
+  if (!clickedLinkElem) {
+    return null;
+  }
+
+  const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
+
+  if (!clickedLinkElemHref) {
+    return null;
+  }
+  
+  const scrollTarget = document.querySelector(clickedLinkElemHref);
+}
+```
+The desired result is a scroll target element ID, like `#section1`. We should use it to find the target element itself. But what if the `href` contains a link to an external resource or some other invalid value? Let's check what happens if we pass not an element ID, but an external resource link:
+
+```html
+ <nav class="navigation">
+   ...
+   <a class="navigation__link" href="https://www.youtube.com/" target="_blank">Section 3</a>
+</nav>
+```
+
+... an Error is thrown at us:
+
+<img width="459" alt="Снимок экрана 2023-04-04 224856" src="https://user-images.githubusercontent.com/52240221/229903871-64d07466-1530-47d3-a439-fadc2c5086cf.png">
+
+So, we need to validate the `clickedLinkElemHref` value somehow before passing it to `querySelector()`.
+
+There are 2 ways:
+
+* implement some kind of RegEx to check if the value is valid;
+* we can use a `try/catch`-block to handle the thrown `Error` case if the value is invalid;
+
+I've preferred the 2nd way, it's simplier than any RegEx solution:
+
+```js
+function getScrollTargetElem(clickedLinkElem: Element | null) {
+  // ... prev stuff
+  
+  let scrollTarget;
+  
+  try {
+    scrollTarget = document.querySelector(clickedLinkElemHref);
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+
+  return scrollTarget;
+}
+```
+
+### Get actual scrollTo target
+
+Let's get the element (or `null`) in the event handler:
+
+```js
+navigation?.addEventListener("click", (e) => {
+  // ... prev stuff
+
+  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
+
+  const scrollTargetElem = getScrollTargetElem(currentLink);
+
+  smoothScrollTo(scrollTargetElem);
+});
+```
