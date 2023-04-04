@@ -1,5 +1,9 @@
 # smoothScrollTo() Function Concept
 
+## What is it
+
+I'm implementing my own vanilla JS alternative to the browser's `scroll-behavior: smooth` feature here. It's useful for cases when you need to combine this functionality with complex scroll JS behavior.
+
 ## Event Listener
 
 First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern)
