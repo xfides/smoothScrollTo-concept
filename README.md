@@ -31,6 +31,7 @@ navigation?.addEventListener("click", (e) => {
 
   const currentTarget = e.target;
 
+  // we must assure TS that currentTarget has Element type. If it's not of Element type, it's a strange error, and function will return
   if (!(currentTarget instanceof Element)) {
     return;
   }
@@ -52,8 +53,28 @@ function getScrollTargetElem() {}
 
 What should it do:
 
-* capture the link we've clicked;
-* obtain the value of the href attribute, which can be the actual ID of the element we want to scroll to;
+* get the link we've clicked;
+* obtain the value of the href attribute, which can be the actual ID of the element we want to scroll to or can be an external link or simply a plain text;
 * verify if it's a valid value to grab the element by:
   * if not, return null (clearly, we have no element);
   * if yes, grab the target element and return it;
+
+### Get the clicked link
+
+We captured a link we've clicked here:
+
+```js
+const currentLink = currentTarget.closest(`.${DOM.navLink}`);
+```
+
+We can't really guarantee TS (without dirty hacks) that JS 100% find this element in DOM, that's why implicit type of `currentLink` is `Element|null'.
+
+So we can pass it as an argument when `getScrollTargetElem` will be called inside the event handler. Now let's set it as a function parameter.
+
+```js
+function getScrollTargetElem(clickedLinkElem: Element | null) {
+  if (!clickedLinkElem) {
+    return null;
+  }
+}
+```
