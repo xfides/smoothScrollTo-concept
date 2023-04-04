@@ -5,6 +5,22 @@ const DOM = {
 
 const navigation = document.querySelector(`.${DOM.nav}`);
 
+navigation?.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const currentTarget = e.target;
+
+  if (!(currentTarget instanceof Element)) {
+    return;
+  }
+
+  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
+
+  const scrollTargetElem = getScrollTargetElem(currentLink);
+
+  smoothScrollTo(scrollTargetElem);
+});
+
 export function smoothScrollTo(scrollTarget: Element | null) {
   // сначала он отрабатывает, только потом переходит по якорю
   const scrollStartPositionY = Math.round(window.scrollY);
@@ -28,24 +44,8 @@ export function smoothScrollTo(scrollTarget: Element | null) {
   // timestamp начала эффекта. perfomance.now() - ВЫСОКОТОЧНАЯ по сравнению с date.now()
   const startScrollTime = performance.now();
 
-  console.log(startScrollTime);
+  animateSingleScrollFrame(startScrollTime);
 }
-
-navigation?.addEventListener("click", (e) => {
-  e.preventDefault();
-
-  const currentTarget = e.target as HTMLElement;
-
-  if (!currentTarget.closest(`.${DOM.navLink}`)) {
-    return;
-  }
-
-  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
-
-  const scrollTarget = getScrollTargetElem(currentLink);
-
-  smoothScrollTo(scrollTarget);
-});
 
 // найти target
 function getScrollTargetElem(clickedLinkElem: Element | null) {
@@ -70,4 +70,8 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   }
 
   return scrollTarget;
+}
+
+function animateSingleScrollFrame(startScrollTime: number) {
+  console.log(startScrollTime);
 }
