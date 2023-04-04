@@ -31,7 +31,8 @@ navigation?.addEventListener("click", (e) => {
 
   const currentTarget = e.target;
 
-  // we must assure TS that currentTarget has Element type. If it's not of Element type, it's a strange error, and function will return
+  // we must assure TS that currentTarget has an Element type
+  // if it's not of the Element type, it's a strange error, and the function will return.
   if (!(currentTarget instanceof Element)) {
     return;
   }
@@ -67,14 +68,49 @@ We captured a link we've clicked here:
 const currentLink = currentTarget.closest(`.${DOM.navLink}`);
 ```
 
-We can't really guarantee TS (without dirty hacks) that JS 100% find this element in DOM, that's why implicit type of `currentLink` is `Element|null'.
+We can't truly guarantee in TypeScript (without using dirty hacks) that JavaScript will 100% find this element in the DOM. That's why the implicit type of `currentLink` is `Element|null`.
 
-So we can pass it as an argument when `getScrollTargetElem` will be called inside the event handler. Now let's set it as a function parameter.
+So, we can pass it as an argument when `getScrollTargetElem` is called inside the event handler. Now, let's set it as a function parameter:
 
 ```js
 function getScrollTargetElem(clickedLinkElem: Element | null) {
   if (!clickedLinkElem) {
     return null;
   }
+  
+  ...
 }
 ```
+
+### Obtain and validate link `href` value
+
+The simpliest part is getting link's `href` value (and if there is no any we can't go further):
+
+```js
+function getScrollTargetElem(clickedLinkElem: Element | null) {
+  if (!clickedLinkElem) {
+    return null;
+  }
+
+  const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
+
+  if (!clickedLinkElemHref) {
+    return null;
+  }
+  
+  const scrollTarget = document.querySelector(clickedLinkElemHref);
+}
+```
+
+The desired result is a scroll target element id like `#section1`, and we use it to find target element itself. But what if `href` contains a link to external resource or some other invalid value? Let's check what would be if we pass not an element id, but external resource:
+
+```html
+ <nav class="navigation">
+   ...
+   <a class="navigation__link" href="https://www.youtube.com/" target="_blank">Section 3</a>
+</nav>
+```
+
+... and there is error that is thrown to us:
+
+<img width="459" alt="Снимок экрана 2023-04-04 224856" src="https://user-images.githubusercontent.com/52240221/229903871-64d07466-1530-47d3-a439-fadc2c5086cf.png">
