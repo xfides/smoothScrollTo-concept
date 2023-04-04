@@ -35,6 +35,7 @@ navigation?.addEventListener("click", (e) => {
     return;
   }
 
+  // also we interested in a link we actually click
   const currentLink = currentTarget.closest(`.${DOM.navLink}`);
   
   // all the magic will be here on link click
@@ -43,3 +44,16 @@ navigation?.addEventListener("click", (e) => {
 
 ## Get scrollTo target
 
+The purpose of the smoothScrollTo() function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function that will do this
+
+```js
+function getScrollTargetElem() {}
+```
+
+What should it do:
+
+* capture the link we've clicked;
+* obtain the value of the href attribute, which can be the actual ID of the element we want to scroll to;
+* verify if it's a valid value to grab the element by:
+  * if not, return null (clearly, we have no element);
+  * if yes, grab the target element and return it;
