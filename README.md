@@ -1,8 +1,8 @@
-# smoothScrollTo Function Concept
+# smoothScrollTo() Function Concept
 
-## Event Listener Anatomy
+## Event Listener
 
-Firstly we need to grab `navigation` element to add event listener to it. We should not apply listeners to links in the navigation direcly, it's a bad practice (check event delegation JS pattern).
+First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern)
 
 ```js
 // I prefer to store all the DOM selector strings into a single object
@@ -13,7 +13,7 @@ const DOM = {
 
 const navigation = document.querySelector(`.${DOM.nav}`);
 ```
-Now we add event listener to navigation and prevent all the default behavior of clicked link targets in it:
+Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it:
 
 ``` js
 // we can't be sure that navigation element exists, so we need optional chaining
@@ -23,19 +23,23 @@ navigation?.addEventListener("click", (e) => {
 });
 ```
 
-Here we realize event delegation pattern: we check if the element is a navigation link or if it is a descendant of it. Iw it's not we leave the function and do nothing:
+Here, we implement the event delegation pattern: we check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function and do nothing
 
 ```js
 navigation?.addEventListener("click", (e) => {
   e.preventDefault();
 
-  // here I cast current target to HTMLElement, cause we click on html elements and no way it can be smth other then element
-  const currentTarget = e.target as HTMLElement;
-  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
+  const currentTarget = e.target;
 
-  if (!currentLink) {
+  if (!(currentTarget instanceof Element)) {
     return;
   }
+
+  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
   
+  // all the magic will be here on link click
 });
 ```
+
+## Get scrollTo target
+
