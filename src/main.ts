@@ -25,7 +25,10 @@ export function smoothScrollTo(scrollTarget: Element | null) {
   const targetPositionY =
     targetPositionYRelativeToViewport + scrollStartPositionY;
 
-  console.log(targetPositionY);
+  // timestamp начала эффекта. perfomance.now() - ВЫСОКОТОЧНАЯ по сравнению с date.now()
+  const startScrollTime = performance.now();
+
+  console.log(startScrollTime);
 }
 
 navigation?.addEventListener("click", (e) => {
