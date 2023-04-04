@@ -84,7 +84,7 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
 
 ### Obtain and validate link `href` value
 
-The simpliest part is getting link's `href` value (and if there is no any we can't go further):
+The simplest part is grabbing the link's `href` value (and if there isn't any, we can't proceed further):
 
 ```js
 function getScrollTargetElem(clickedLinkElem: Element | null) {
@@ -101,8 +101,7 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   const scrollTarget = document.querySelector(clickedLinkElemHref);
 }
 ```
-
-The desired result is a scroll target element id like `#section1`, and we use it to find target element itself. But what if `href` contains a link to external resource or some other invalid value? Let's check what would be if we pass not an element id, but external resource:
+The desired result is a scroll target element ID, like `#section1`. We should use it to find the target element itself. But what if the `href` contains a link to an external resource or some other invalid value? Let's check what happens if we pass not an element ID, but an external resource link:
 
 ```html
  <nav class="navigation">
@@ -111,6 +110,48 @@ The desired result is a scroll target element id like `#section1`, and we use it
 </nav>
 ```
 
-... and there is error that is thrown to us:
+... an Error is thrown at us:
 
 <img width="459" alt="Снимок экрана 2023-04-04 224856" src="https://user-images.githubusercontent.com/52240221/229903871-64d07466-1530-47d3-a439-fadc2c5086cf.png">
+
+So, we need to validate the `clickedLinkElemHref` value somehow before passing it to `querySelector()`.
+
+There are 2 ways:
+
+* implement some kind of RegEx to check if the value is valid;
+* we can use a `try/catch`-block to handle the thrown `Error` case if the value is invalid;
+
+I've preferred the 2nd way, it's simplier than any RegEx solution:
+
+```js
+function getScrollTargetElem(clickedLinkElem: Element | null) {
+  // ... prev stuff
+  
+  let scrollTarget;
+  
+  try {
+    scrollTarget = document.querySelector(clickedLinkElemHref);
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+
+  return scrollTarget;
+}
+```
+
+### Get actual scrollTo target
+
+Let's get the element (or `null`) in the event handler:
+
+```js
+navigation?.addEventListener("click", (e) => {
+  // ... prev stuff
+
+  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
+
+  const scrollTargetElem = getScrollTargetElem(currentLink);
+
+  smoothScrollTo(scrollTargetElem);
+});
+```
