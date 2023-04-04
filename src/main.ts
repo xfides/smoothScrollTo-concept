@@ -7,7 +7,7 @@ const navigation = document.querySelector(`.${DOM.nav}`);
 
 export function smoothScrollTo(scrollTarget: Element | null) {
   // сначала он отрабатывает, только потом переходит по якорю
-  const startPosition = Math.round(window.scrollY);
+  const scrollStartPositionY = Math.round(window.scrollY);
 
   // нашли элемент, к которому скроллим (координата относительно вьюпорта - надо рисунок приложить)
   let targetPositionYRelativeToViewport =
@@ -20,6 +20,12 @@ export function smoothScrollTo(scrollTarget: Element | null) {
   targetPositionYRelativeToViewport = Math.round(
     targetPositionYRelativeToViewport
   );
+
+  // позиция по Y относительно НЕ!!! вьюпорта, а страницы
+  const targetPositionY =
+    targetPositionYRelativeToViewport + scrollStartPositionY;
+
+  console.log(targetPositionY);
 }
 
 navigation?.addEventListener("click", (e) => {
