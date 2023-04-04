@@ -29,6 +29,7 @@ Here we realize event delegation pattern: we check if the element is a navigatio
 navigation?.addEventListener("click", (e) => {
   e.preventDefault();
 
+  // here I cast current target to HTMLElement, cause we click on html elements and no way it can be smth other then element
   const currentTarget = e.target as HTMLElement;
   const currentLink = currentTarget.closest(`.${DOM.navLink}`);
 
