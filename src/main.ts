@@ -5,10 +5,12 @@ const DOM = {
 
 const navigation = document.querySelector(`.${DOM.nav}`);
 
-export function smoothScrollTo() {
+export function smoothScrollTo(scrollTarget: Element | null) {
   // сначала он отрабатывает, только потом переходит по якорю
   const startPosition = window.scrollY;
-  console.log(startPosition);
+
+  // нашли элемент, к которому скроллим
+  console.log(scrollTarget);
 }
 
 navigation?.addEventListener("click", (e) => {
@@ -18,7 +20,34 @@ navigation?.addEventListener("click", (e) => {
     return;
   }
 
-  console.log(currentTarget);
+  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
 
-  smoothScrollTo();
+  const scrollTarget = getScrollTargetElem(currentLink);
+
+  smoothScrollTo(scrollTarget);
 });
+
+// найти target
+function getScrollTargetElem(clickedLinkElem: Element | null) {
+  if (!clickedLinkElem) {
+    return null;
+  }
+
+  const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
+
+  if (!clickedLinkElemHref) {
+    return null;
+  }
+
+  let scrollTarget;
+
+  // проверка на то, что у нас валидная (не внешний урл и не ерунда) строка в href
+  try {
+    scrollTarget = document.querySelector(clickedLinkElemHref);
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+
+  return scrollTarget;
+}
