@@ -183,7 +183,7 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 
 ### Get actual user Y-position
 
-A crucial part of each custom scrolling is a start point detection. We can do further calculation based on coordinates of our current point on the page. In our case (vertical scrolling) we're interested in Y-coordinates only. A start point is easy to get with `window.scrollY`:
+A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
 
 ```js
 export function smoothScrollTo(scrollTarget: Element | null) {
