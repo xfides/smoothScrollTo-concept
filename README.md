@@ -198,11 +198,10 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 
 ### Get Y-coordinate of target element
 
-We know the start point of scrolling and we need one more point - where to scroll point Y-coordinate. It's a bit more tricky: we have no methods to grab directly an absolute coordinate of the top left corner of the target element. Still it's possible, but we need 2 steps to obtain it.
+We know the starting point of scrolling, and we need one more point - the Y-coordinate of where to scroll. It's a bit more tricky: we have no methods to directly grab the absolute coordinate of the top-left corner of the target element. However, it's still possible, but we need two steps to obtain it.
 
 #### Get the target element Y-coordinate relative to viewport
 
-First of all, we need to obtain target element Y-coordinate which is related to the users viewport. Our helper there is the `getBoundingClientRect()`:
+First of all, we need to obtain the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
 
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
-
