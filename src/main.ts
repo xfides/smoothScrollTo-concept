@@ -71,5 +71,8 @@ function animateSingleScrollFrame(startScrollTime: number) {
   // временный костыль, пока не сделаем raf
   const currentTime = performance.now() + 10;
 
+  // разница времени стартовой анимации и currentTime, обновляющийся на каждый тик Event Loop
+  const elapsedTime = currentTime - startScrollTime;
+
   console.log({ startScrollTime, currentTime });
 }
