@@ -29,11 +29,8 @@ export function smoothScrollTo(scrollTarget: Element | null) {
   const scrollStartPositionY = Math.round(window.scrollY);
 
   // нашли элемент, к которому скроллим (координата относительно вьюпорта - надо рисунок приложить)
-  let targetPositionYRelativeToViewport =
-    scrollTarget.getBoundingClientRect().top;
-
-  targetPositionYRelativeToViewport = Math.round(
-    targetPositionYRelativeToViewport
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTarget.getBoundingClientRect().top
   );
 
   // позиция по Y относительно НЕ!!! вьюпорта, а страницы
@@ -70,6 +67,4 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   return scrollTarget;
 }
 
-function animateSingleScrollFrame(startScrollTime: number) {
-  console.log(startScrollTime);
-}
+function animateSingleScrollFrame(startScrollTime: number) {}
