@@ -181,7 +181,7 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 }
 ```
 
-### Get actual user Y-position
+### Get actual user Y-coordinate
 
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
 
@@ -195,4 +195,14 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 }
 ```
 [Untitled_ Apr 5, 2023 4_03 PM.webm](https://user-images.githubusercontent.com/52240221/230088691-7c632ad0-5dac-484b-8308-bb43ec1a0a1b.webm)
+
+### Get Y-coordinate of target element
+
+We know the start point of scrolling and we need one more point - where to scroll point Y-coordinate. It's a bit more tricky: we have no methods to grab directly an absolute coordinate of the top left corner of the target element. Still it's possible, but we need 2 steps to obtain it.
+
+#### Get the target element Y-coordinate relative to viewport
+
+First of all, we need to obtain target element Y-coordinate which is related to the users viewport. Our helper there is the `getBoundingClientRect()`:
+
+<img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
 
