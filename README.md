@@ -1,5 +1,9 @@
 # smoothScrollTo() Function Concept
 
+## What is it
+
+I'm implementing my own vanilla JS alternative to the browser's `scroll-behavior: smooth` feature here. It's useful for cases when you need to combine this functionality with complex scroll JS behavior.
+
 ## Event Listener
 
 First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern)
@@ -125,7 +129,7 @@ I've preferred the 2nd way, it's simplier than any RegEx solution:
 
 ```js
 function getScrollTargetElem(clickedLinkElem: Element | null) {
-  // ... prev stuff
+  // ... previous stuff
   
   let scrollTarget;
   
@@ -146,7 +150,7 @@ Let's get the element (or `null`) in the event handler:
 
 ```js
 navigation?.addEventListener("click", (e) => {
-  // ... prev stuff
+  // ... previous stuff
 
   const currentLink = currentTarget.closest(`.${DOM.navLink}`);
 
@@ -155,3 +159,49 @@ navigation?.addEventListener("click", (e) => {
   smoothScrollTo(scrollTargetElem);
 });
 ```
+## smoothScrollTo() function and it's basic variables
+
+The actual function that performs all the magic is a function that smoothly scrolls to the target. We call it in the event handler after target definition, as it should know the point to which it should actually scroll
+
+```js
+navigation?.addEventListener("click", (e) => {
+  // ... previous stuff
+
+  // getScrollTargetElem() returns either an Element or null, 
+  // and we handle what to do in both cases within the smoothScrollTo() function
+  const scrollTargetElem = getScrollTargetElem(currentLink);
+
+  smoothScrollTo(scrollTargetElem);
+});
+
+export function smoothScrollTo(scrollTarget: Element | null) {
+  if (!scrollTarget) {
+    return;
+  }
+}
+```
+
+### Get actual user Y-coordinate
+
+A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
+
+```js
+export function smoothScrollTo(scrollTarget: Element | null) {
+  if (!scrollTarget) {
+    return;
+  }
+
+  const scrollStartPositionY = Math.round(window.scrollY);
+}
+```
+[Untitled_ Apr 5, 2023 4_03 PM.webm](https://user-images.githubusercontent.com/52240221/230088691-7c632ad0-5dac-484b-8308-bb43ec1a0a1b.webm)
+
+### Get Y-coordinate of target element
+
+We know the starting point of scrolling, and we need one more point - the Y-coordinate of where to scroll. It's a bit more tricky: we have no methods to directly grab the absolute coordinate of the top-left corner of the target element. However, it's still possible, but we need two steps to obtain it.
+
+#### Get the target element Y-coordinate relative to viewport
+
+First of all, we need to obtain the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
+
+<img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
