@@ -6,4 +6,6 @@ export interface ISmoothScrollToProps {
 export interface IAnimateSingleScrollFrame {
   startScrollTime: number;
   scrollDuration: number;
+  scrollStartPositionY: number;
+  targetPositionY: number;
 }

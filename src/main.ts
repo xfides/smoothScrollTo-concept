@@ -41,7 +41,12 @@ export function smoothScrollTo({
   // timestamp начала эффекта. perfomance.now() - ВЫСОКОТОЧНАЯ по сравнению с date.now()
   const startScrollTime = performance.now();
 
-  animateSingleScrollFrame({ startScrollTime, scrollDuration });
+  animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  });
 }
 
 // найти target
@@ -71,9 +76,11 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
 function animateSingleScrollFrame({
   startScrollTime,
   scrollDuration,
+  scrollStartPositionY,
+  targetPositionY,
 }: IAnimateSingleScrollFrame) {
   // временный костыль, пока не сделаем raf
-  const currentTime = performance.now() + 10;
+  const currentTime = performance.now() + 100;
 
   // разница времени стартовой анимации и currentTime,
   // обновляющийся на каждый тик Event Loop
@@ -86,7 +93,19 @@ function animateSingleScrollFrame({
   const normalizedAnimationProgressByBezierCurve =
     easeInOutQuadProgress(animationProgress);
 
-  console.log({ startScrollTime, currentTime });
+  const lengthToScrollPerSingleFrame =
+    (targetPositionY - scrollStartPositionY) *
+    normalizedAnimationProgressByBezierCurve;
+
+  const scrollStopAfterAnimationPosition =
+    scrollStartPositionY + lengthToScrollPerSingleFrame;
+
+  console.log({
+    scrollStartPositionY,
+    targetPositionY,
+    scrollStopAfterAnimationPosition,
+    lengthToScrollPerSingleFrame,
+  });
 }
 
 // посмотреть формулу тут -https://easings.net/#easeInOutQuad
