@@ -202,6 +202,20 @@ We know the starting point of scrolling, and we need one more point - the Y-coor
 
 #### Get the target element Y-coordinate relative to viewport
 
-First of all, we need to obtain the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
+We need to grab the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
 
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
+
+```js
+export function smoothScrollTo(scrollTarget: Element | null) {
+  // ... previous stuff
+  
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTargetElem.getBoundingClientRect().top
+  );
+}
+```
+
+Check this small video to see how it works:
+
+[Untitled_ Apr 5 2023 10_59 PM.webm](https://user-images.githubusercontent.com/52240221/230197699-fdd81fb2-ced6-4cbe-98da-32ecd8061c7d.webm)
