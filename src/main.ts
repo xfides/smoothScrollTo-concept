@@ -75,8 +75,14 @@ function animateSingleScrollFrame({
   // временный костыль, пока не сделаем raf
   const currentTime = performance.now() + 10;
 
-  // разница времени стартовой анимации и currentTime, обновляющийся на каждый тик Event Loop
+  // разница времени стартовой анимации и currentTime,
+  // обновляющийся на каждый тик Event Loop
   const elapsedTime = currentTime - startScrollTime;
+
+  // прогресс анимации в абстрактном выражении (домножим на 100 - получим проценты)
+  // если выходим за пределы 1 (максимально возможный прогресс анимации),
+  // останавливаемся на 1
+  const animationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
   console.log({ startScrollTime, currentTime });
 }
