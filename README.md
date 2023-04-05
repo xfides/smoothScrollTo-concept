@@ -210,6 +210,8 @@ We need to grab the target element's Y-coordinate relative to the user's viewpor
 export function smoothScrollTo(scrollTarget: Element | null) {
   // ... previous stuff
   
+  const scrollStartPositionY = Math.round(window.scrollY);
+  
   const targetPositionYRelativeToViewport = Math.round(
     scrollTargetElem.getBoundingClientRect().top
   );
@@ -220,3 +222,56 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 
 #### Calc absolute target element Y-coordinate
 
+The absolute target element Y-coordinate can be calc based on the start scroll position and the relative coordinate. The formula is:
+
+```js
+targetPositionYRelativeToViewport + scrollStartPositionY;
+```
+
+Check the schemes below.
+
+##### Case #1
+
+<img width="1048" alt="Снимок экрана 2023-04-06 003133" src="https://user-images.githubusercontent.com/52240221/230216458-a51587a3-70f8-4955-8a41-2caaca9d3b58.png">
+
+##### Case #2
+
+<img width="1148" alt="Снимок экрана 2023-04-06 003707" src="https://user-images.githubusercontent.com/52240221/230217606-ad0f60f9-a418-4f1a-9da4-c01d53f0cc85.png">
+
+##### Case #3
+
+<img width="1147" alt="Снимок экрана 2023-04-06 004127" src="https://user-images.githubusercontent.com/52240221/230218478-cf973bf2-d066-475c-ba67-03447e0fc689.png">
+
+So now `smoothScrollTo()` function looks like that:
+
+```js
+export function smoothScrollTo(scrollTarget: Element | null) {
+  // ... previous stuff
+  
+  const scrollStartPositionY = Math.round(window.scrollY);
+  
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTargetElem.getBoundingClientRect().top
+  );
+  
+  const targetPositionY = targetPositionYRelativeToViewport + scrollStartPositionY;
+}
+```
+
+### Get the scroll start timestamp
+
+We need this value for animation settings which would be discussed later. 
+
+There are 2 options to get a 'now'-timestamp:
+* `Date.now()`
+* `performance.now()`
+
+Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. So we should use this one to make the animation smooth and precise too.
+
+```js
+export function smoothScrollTo(scrollTarget: Element | null) {
+  // ... previous stuff
+  
+  const startScrollTime = performance.now();
+}
+```
