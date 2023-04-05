@@ -1,7 +1,5 @@
-const DOM = {
-  nav: "navigation",
-  navLink: "navigation__link",
-};
+import { DOM, DEFAULT_SCROLL_ANIMATION_TIME } from "./consts";
+import { ISmoothScrollToProps } from "./types";
 
 const navigation = document.querySelector(`.${DOM.nav}`);
 
@@ -18,11 +16,14 @@ navigation?.addEventListener("click", (e) => {
 
   const scrollTargetElem = getScrollTargetElem(currentLink);
 
-  smoothScrollTo(scrollTargetElem);
+  smoothScrollTo({ scrollTargetElem });
 });
 
-export function smoothScrollTo(scrollTarget: Element | null) {
-  if (!scrollTarget) {
+export function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+}: ISmoothScrollToProps) {
+  if (!scrollTargetElem) {
     return;
   }
 
@@ -30,7 +31,7 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 
   // нашли элемент, к которому скроллим (координата относительно вьюпорта - надо рисунок приложить)
   const targetPositionYRelativeToViewport = Math.round(
-    scrollTarget.getBoundingClientRect().top
+    scrollTargetElem.getBoundingClientRect().top
   );
 
   // позиция по Y относительно НЕ!!! вьюпорта, а страницы
