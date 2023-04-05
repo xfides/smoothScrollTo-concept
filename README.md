@@ -216,6 +216,7 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 }
 ```
 
-Check this small video to see how it works:
+<img width="832" alt="Снимок экрана 2023-04-06 001122" src="https://user-images.githubusercontent.com/52240221/230212586-7bb7369f-45f1-49b5-9fa6-9266729970a5.png">
 
-[Untitled_ Apr 5 2023 10_59 PM.webm](https://user-images.githubusercontent.com/52240221/230197699-fdd81fb2-ced6-4cbe-98da-32ecd8061c7d.webm)
+#### Calc absolute target element Y-coordinate
+
