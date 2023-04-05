@@ -129,7 +129,7 @@ I've preferred the 2nd way, it's simplier than any RegEx solution:
 
 ```js
 function getScrollTargetElem(clickedLinkElem: Element | null) {
-  // ... prev stuff
+  // ... previous stuff
   
   let scrollTarget;
   
@@ -150,7 +150,7 @@ Let's get the element (or `null`) in the event handler:
 
 ```js
 navigation?.addEventListener("click", (e) => {
-  // ... prev stuff
+  // ... previous stuff
 
   const currentLink = currentTarget.closest(`.${DOM.navLink}`);
 
@@ -158,4 +158,24 @@ navigation?.addEventListener("click", (e) => {
 
   smoothScrollTo(scrollTargetElem);
 });
+```
+## smoothScrollTo() function and it's basic variables
+
+The actual function that performs all the magic is a function that smoothly scrolls to the target. We call it in the event handler after target definition, as it should know the point to which it should actually scroll
+
+```js
+navigation?.addEventListener("click", (e) => {
+  // ... previous stuff
+
+  // getScrollTargetElem() returns either an Element or null, and we handle what to do in both cases within the smoothScrollTo() function
+  const scrollTargetElem = getScrollTargetElem(currentLink);
+
+  smoothScrollTo(scrollTargetElem);
+});
+
+export function smoothScrollTo(scrollTarget: Element | null) {
+  if (!scrollTarget) {
+    return;
+  }
+}
 ```
