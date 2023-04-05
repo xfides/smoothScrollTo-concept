@@ -67,4 +67,9 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   return scrollTarget;
 }
 
-function animateSingleScrollFrame(startScrollTime: number) {}
+function animateSingleScrollFrame(startScrollTime: number) {
+  // временный костыль, пока не сделаем raf
+  const currentTime = performance.now() + 10;
+
+  console.log({ startScrollTime, currentTime });
+}
