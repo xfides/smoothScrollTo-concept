@@ -1,5 +1,5 @@
 import { DOM, DEFAULT_SCROLL_ANIMATION_TIME } from "./consts";
-import { ISmoothScrollToProps } from "./types";
+import { ISmoothScrollToProps, IAnimateSingleScrollFrame } from "./types";
 
 const navigation = document.querySelector(`.${DOM.nav}`);
 
@@ -41,7 +41,7 @@ export function smoothScrollTo({
   // timestamp начала эффекта. perfomance.now() - ВЫСОКОТОЧНАЯ по сравнению с date.now()
   const startScrollTime = performance.now();
 
-  animateSingleScrollFrame(startScrollTime);
+  animateSingleScrollFrame({ startScrollTime, scrollDuration });
 }
 
 // найти target
@@ -68,7 +68,10 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   return scrollTarget;
 }
 
-function animateSingleScrollFrame(startScrollTime: number) {
+function animateSingleScrollFrame({
+  startScrollTime,
+  scrollDuration,
+}: IAnimateSingleScrollFrame) {
   // временный костыль, пока не сделаем raf
   const currentTime = performance.now() + 10;
 
