@@ -22,16 +22,15 @@ navigation?.addEventListener("click", (e) => {
 });
 
 export function smoothScrollTo(scrollTarget: Element | null) {
-  // сначала он отрабатывает, только потом переходит по якорю
+  if (!scrollTarget) {
+    return;
+  }
+
   const scrollStartPositionY = Math.round(window.scrollY);
 
   // нашли элемент, к которому скроллим (координата относительно вьюпорта - надо рисунок приложить)
   let targetPositionYRelativeToViewport =
-    scrollTarget?.getBoundingClientRect().top;
-
-  if (targetPositionYRelativeToViewport === undefined) {
-    return;
-  }
+    scrollTarget.getBoundingClientRect().top;
 
   targetPositionYRelativeToViewport = Math.round(
     targetPositionYRelativeToViewport
@@ -61,7 +60,6 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
 
   let scrollTarget;
 
-  // проверка на то, что у нас валидная (не внешний урл и не ерунда) строка в href
   try {
     scrollTarget = document.querySelector(clickedLinkElemHref);
   } catch (e) {
