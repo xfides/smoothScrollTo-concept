@@ -79,10 +79,18 @@ function animateSingleScrollFrame({
   // обновляющийся на каждый тик Event Loop
   const elapsedTime = currentTime - startScrollTime;
 
-  // прогресс анимации в абстрактном выражении (домножим на 100 - получим проценты)
-  // если выходим за пределы 1 (максимально возможный прогресс анимации),
-  // останавливаемся на 1
+  // absolute progress of the animation in the bounds of 0
+  // (beginning of the animation) and 1 (end of animation)
   const animationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
+  const normalizedAnimationProgressByBezierCurve =
+    easeInOutQuadProgress(animationProgress);
+
   console.log({ startScrollTime, currentTime });
+}
+
+// посмотреть формулу тут -https://easings.net/#easeInOutQuad
+// проводим корректировку прогресса анимации с поправкой на кривую Безье
+function easeInOutQuadProgress(passed: number) {
+  return passed < 0.5 ? 2 * passed * passed : -1 + (4 - 2 * passed) * passed;
 }
