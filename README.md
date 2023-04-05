@@ -167,7 +167,8 @@ The actual function that performs all the magic is a function that smoothly scro
 navigation?.addEventListener("click", (e) => {
   // ... previous stuff
 
-  // getScrollTargetElem() returns either an Element or null, and we handle what to do in both cases within the smoothScrollTo() function
+  // getScrollTargetElem() returns either an Element or null, 
+  // and we handle what to do in both cases within the smoothScrollTo() function
   const scrollTargetElem = getScrollTargetElem(currentLink);
 
   smoothScrollTo(scrollTargetElem);
@@ -179,3 +180,19 @@ export function smoothScrollTo(scrollTarget: Element | null) {
   }
 }
 ```
+
+### Get actual user Y-position
+
+A crucial part of each custom scrolling is a start point detection. We can do further calculation based on coordinates of our current point on the page. In our case (vertical scrolling) we're interested in Y-coordinates only. A start point is easy to get with `window.scrollY`:
+
+```js
+export function smoothScrollTo(scrollTarget: Element | null) {
+  if (!scrollTarget) {
+    return;
+  }
+
+  const scrollStartPositionY = Math.round(window.scrollY);
+}
+```
+[Untitled_ Apr 5, 2023 4_03 PM.webm](https://user-images.githubusercontent.com/52240221/230088691-7c632ad0-5dac-484b-8308-bb43ec1a0a1b.webm)
+
