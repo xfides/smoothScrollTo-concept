@@ -100,6 +100,11 @@ function animateSingleScrollFrame({
   const scrollStopAfterAnimationPosition =
     scrollStartPositionY + lengthToScrollPerSingleFrame;
 
+  window.scrollTo({
+    left: 0,
+    top: scrollStopAfterAnimationPosition,
+  });
+
   console.log({
     scrollStartPositionY,
     targetPositionY,
