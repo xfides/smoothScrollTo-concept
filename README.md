@@ -35,13 +35,7 @@ navigation?.addEventListener("click", (e) => {
 
   const currentTarget = e.target;
 
-  // we must assure TS that currentTarget has an Element type
-  // if it's not of the Element type, it's a strange error, and the function will return.
-  if (!(currentTarget instanceof Element)) {
-    return;
-  }
-
-  // also we interested in a link we actually click
+  // we interested in a link we actually click
   const currentLink = currentTarget.closest(`.${DOM.navLink}`);
   
   // all the magic will be here on link click
@@ -72,12 +66,12 @@ We captured a link we've clicked here:
 const currentLink = currentTarget.closest(`.${DOM.navLink}`);
 ```
 
-We can't truly guarantee in TypeScript (without using dirty hacks) that JavaScript will 100% find this element in the DOM. That's why the implicit type of `currentLink` is `Element|null`.
+We can't truly guarantee that JavaScript will 100% find this element in the DOM. That's why `currentLink` can be either `Element` or `null`.
 
 So, we can pass it as an argument when `getScrollTargetElem` is called inside the event handler. Now, let's set it as a function parameter:
 
 ```js
-function getScrollTargetElem(clickedLinkElem: Element | null) {
+function getScrollTargetElem(clickedLinkElem) {
   if (!clickedLinkElem) {
     return null;
   }
@@ -91,13 +85,14 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
 The simplest part is grabbing the link's `href` value (and if there isn't any, we can't proceed further):
 
 ```js
-function getScrollTargetElem(clickedLinkElem: Element | null) {
+function getScrollTargetElem(clickedLinkElem) {
   if (!clickedLinkElem) {
     return null;
   }
 
   const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
 
+  // there can be not defined `href` attribute or it can be empty
   if (!clickedLinkElemHref) {
     return null;
   }
@@ -128,7 +123,7 @@ There are 2 ways:
 I've preferred the 2nd way, it's simplier than any RegEx solution:
 
 ```js
-function getScrollTargetElem(clickedLinkElem: Element | null) {
+function getScrollTargetElem(clickedLinkElem) {
   // ... previous stuff
   
   let scrollTarget;
@@ -174,7 +169,7 @@ navigation?.addEventListener("click", (e) => {
   smoothScrollTo(scrollTargetElem);
 });
 
-function smoothScrollTo(scrollTargetElem: Element | null) {
+function smoothScrollTo(scrollTargetElem) {
   if (!scrollTarget) {
     return;
   }
@@ -186,7 +181,7 @@ function smoothScrollTo(scrollTargetElem: Element | null) {
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
 
 ```js
-function smoothScrollTo(scrollTargetElem: Element | null) {
+function smoothScrollTo(scrollTargetElem) {
   if (!scrollTargetElem) {
     return;
   }
@@ -207,7 +202,7 @@ We need to grab the target element's Y-coordinate relative to the user's viewpor
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
 
 ```js
-function smoothScrollTo(scrollTargetElem: Element | null) {
+function smoothScrollTo(scrollTargetElem) {
   // ... previous stuff
   
   const scrollStartPositionY = Math.round(window.scrollY);
@@ -245,7 +240,7 @@ Check the schemes below.
 So now `smoothScrollTo()` function looks like that:
 
 ```js
-function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget) {
   // ... previous stuff
   
   const scrollStartPositionY = Math.round(window.scrollY);
@@ -269,7 +264,7 @@ There are 2 options to get a 'now'-timestamp:
 Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. So we should use this one to make the animation smooth and precise too.
 
 ```js
-function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget) {
   // ... previous stuff
   
   const startScrollTime = performance.now();
@@ -287,7 +282,7 @@ So, we need a function that handles single frame motion, and based on it, we wil
 Let's define it, call it in the `smoothScrollTo()` as a draft, and pass `startScrollTime` to it:
 
 ```js
-function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget) {
   // ... previous stuff
   
   const startScrollTime = performance.now();
