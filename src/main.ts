@@ -93,7 +93,6 @@ function animateSingleScrollFrame({
   const newPositionY = scrollStartPositionY + currentScrollLength;
 
   window.scrollTo({
-    left: 0,
     top: newPositionY,
   });
 
