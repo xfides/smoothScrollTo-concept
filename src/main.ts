@@ -36,7 +36,6 @@ export function smoothScrollTo({
   const targetPositionY =
     targetPositionYRelativeToViewport + scrollStartPositionY;
 
-  // timestamp начала эффекта. perfomance.now() - ВЫСОКОТОЧНАЯ по сравнению с date.now()
   const startScrollTime = performance.now();
 
   animateSingleScrollFrame({
@@ -92,11 +91,11 @@ function animateSingleScrollFrame({
     absoluteAnimationProgress
   );
 
-  const lengthToScrollPerSingleFrame =
+  const scrollLengthPerFrame =
     (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
 
   const scrollStopAfterAnimationPosition =
-    scrollStartPositionY + lengthToScrollPerSingleFrame;
+    scrollStartPositionY + scrollLengthPerFrame;
 
   window.scrollTo({
     left: 0,
