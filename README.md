@@ -92,7 +92,7 @@ function getScrollTargetElem(clickedLinkElem) {
 
   const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
 
-  // there can be not defined `href` attribute or it can be empty
+  // The href attribute may be left undefined or empty by the user
   if (!clickedLinkElemHref) {
     return null;
   }
@@ -176,12 +176,36 @@ function smoothScrollTo(scrollTargetElem) {
 }
 ```
 
+### Scroll Duration
+
+The crucial thing we need to know is how long our animation should last. In our case, the user should be able to set it directly as a ` smoothScrollTo` parameter. Additionally, we will define a default value in case the user doesn't want to set any.
+
+```js
+const DEFAULT_SCROLL_ANIMATION_TIME = 500;
+
+navigation?.addEventListener("click", (e) => {
+  // ... previous stuff
+
+  // the user can set any time in milliseconds here
+  // I've also packed the arguments into objects for more convenient handling
+  smoothScrollTo({scrollTargetElem, scrollDuration: some_time_in_ms});
+});
+
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {}
+```
+
 ### Get actual user Y-coordinate
 
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
 
 ```js
-function smoothScrollTo(scrollTargetElem) {
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
   if (!scrollTargetElem) {
     return;
   }
@@ -202,7 +226,10 @@ We need to grab the target element's Y-coordinate relative to the user's viewpor
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
 
 ```js
-function smoothScrollTo(scrollTargetElem) {
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
   // ... previous stuff
   
   const scrollStartPositionY = Math.round(window.scrollY);
@@ -240,7 +267,10 @@ Check the schemes below.
 So now `smoothScrollTo()` function looks like that:
 
 ```js
-function smoothScrollTo(scrollTarget) {
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
   // ... previous stuff
   
   const scrollStartPositionY = Math.round(window.scrollY);
@@ -264,7 +294,10 @@ There are 2 options to get a 'now'-timestamp:
 Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. So we should use this one to make the animation smooth and precise too.
 
 ```js
-function smoothScrollTo(scrollTarget) {
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
   // ... previous stuff
   
   const startScrollTime = performance.now();
@@ -279,19 +312,22 @@ Essentially, each animation is an event that occurs over a duration, and we can 
 
 So, we need a function that handles single frame motion, and based on it, we will build the entire animation
 
-Let's define it, call it in the `smoothScrollTo()` as a draft, and pass `startScrollTime` to it:
+Let's define it, call it in the `smoothScrollTo()` as a draft, and pass `startScrollTime` and `scrollDuration` to it:
 
 ```js
-function smoothScrollTo(scrollTarget) {
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
   // ... previous stuff
   
   const startScrollTime = performance.now();
   
-  // There will be more arguments, so I'm grouping them into an object for more convenient handling
   animateSingleScrollFrame({
-    startScrollTime
+    startScrollTime,
+    scrollDuration
   })
 }
 
-function animateSingleScrollFrame({startScrollTime }) {}
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {}
 ```
