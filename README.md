@@ -174,7 +174,7 @@ navigation?.addEventListener("click", (e) => {
   smoothScrollTo(scrollTargetElem);
 });
 
-function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTargetElem: Element | null) {
   if (!scrollTarget) {
     return;
   }
@@ -186,8 +186,8 @@ function smoothScrollTo(scrollTarget: Element | null) {
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
 
 ```js
-function smoothScrollTo(scrollTarget: Element | null) {
-  if (!scrollTarget) {
+function smoothScrollTo(scrollTargetElem: Element | null) {
+  if (!scrollTargetElem) {
     return;
   }
 
@@ -207,7 +207,7 @@ We need to grab the target element's Y-coordinate relative to the user's viewpor
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
 
 ```js
-function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTargetElem: Element | null) {
   // ... previous stuff
   
   const scrollStartPositionY = Math.round(window.scrollY);
