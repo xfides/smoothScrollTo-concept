@@ -340,7 +340,21 @@ Technically, we would obtain a `currentTime` timestamp from `requestAnimationFra
 
 ```js
 function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
-  // The '100' here is a magic number, used for mock purposes only, and will be removed upon the implementation of requestAnimationFrame()
+  // The '100' here is a magic number, used for mock purposes only, 
+  // and will be removed upon the implementation of requestAnimationFrame()
   const currentTime = performance.now() + 100;
+}
+```
+
+### Elapsed Time
+
+The elapsed time will be used to calculate the animation progress. When we implement `requestAnimationFrame()`, `currentTime` (and therefore, `elapsedTime`) will be updated on each Event Loop tick.
+
+```js
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // ... previous stuff
+  
+  // It's currently equal to 100ms due to the mock value
+  const elapsedTime = currentTime - startScrollTime;
 }
 ```
