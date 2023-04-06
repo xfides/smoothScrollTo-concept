@@ -275,3 +275,28 @@ export function smoothScrollTo(scrollTarget: Element | null) {
   const startScrollTime = performance.now();
 }
 ```
+
+## Animation per frame function
+
+Each animation is, basically, some event which is happening in a timespan, and we can split this event-timespan thing into separate frames. Something like that:
+
+![hand-drawn-animation-frames-element-collection_23-2149845068](https://user-images.githubusercontent.com/52240221/230394813-c214930d-7ae1-4fae-aaa1-7c87c2d1dc3b.jpg)
+
+So we need a function which handles a single frame motion, and basing on it we will build the whole animation.
+
+Let's define it, call in the `smoothScrollTo()` as a draft and pass a `startScrollTime` to it as an argument
+
+```js
+export function smoothScrollTo(scrollTarget: Element | null) {
+  // ... previous stuff
+  
+  const startScrollTime = performance.now();
+  
+  // there will be more arguments, therefore I group them into an object for more convenient handling
+  animateSingleScrollFrame({
+    startScrollTime
+  })
+}
+
+function animateSingleScrollFrame({startScrollTime }) {}
+```
