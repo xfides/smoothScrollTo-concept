@@ -461,7 +461,6 @@ function animateSingleScrollFrame({
   const currentScrollLength =
     (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
 }
-
 ```
 
 #### Example #1
@@ -471,3 +470,29 @@ function animateSingleScrollFrame({
 #### Example #2
 
 <img width="861" alt="image" src="https://user-images.githubusercontent.com/52240221/230451269-5f62aa5e-3121-4dc5-bfe2-51f4b32a91a7.png">
+
+### New position Y-coordinate
+
+Ok, the purpose of the `animateSingleScrollFrame()` is to actually scroll. We need to know an actual Y-coordinate of point we scroll to and we've done all the preliminary calculations, therefore we ready to calculate the stop scroll point for current frame:
+
+```js
+function animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  }) {
+  // ... previous stuff
+  
+  const currentScrollLength =
+    (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
+    
+  const newPositionY = scrollStartPositionY + currentScrollLength;
+}
+```
+
+#### Example #1
+<img width="1044" alt="image" src="https://user-images.githubusercontent.com/52240221/230455012-1bc89900-9149-4bcb-998f-f725ed568aa6.png">
+
+#### Example #2
+<img width="1049" alt="image" src="https://user-images.githubusercontent.com/52240221/230455407-4fa18d89-2cc8-4939-8c7c-ad644236cafe.png">
