@@ -79,27 +79,22 @@ function animateSingleScrollFrame({
   // временный костыль, пока не сделаем raf
   const currentTime = performance.now() + 100;
 
-  // разница времени стартовой анимации и currentTime,
-  // обновляющийся на каждый тик Event Loop
   const elapsedTime = currentTime - startScrollTime;
 
-  // absolute progress of the animation in the bounds of 0
-  // (beginning of the animation) and 1 (end of animation)
   const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
   const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
     absoluteAnimationProgress
   );
 
-  const scrollLengthPerFrame =
+  const currentScrollLength =
     (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
 
-  const scrollStopAfterAnimationPosition =
-    scrollStartPositionY + scrollLengthPerFrame;
+  const newPositionY = scrollStartPositionY + currentScrollLength;
 
   window.scrollTo({
     left: 0,
-    top: scrollStopAfterAnimationPosition,
+    top: newPositionY,
   });
 
   if (elapsedTime < scrollDuration) {
