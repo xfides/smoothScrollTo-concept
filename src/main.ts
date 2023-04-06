@@ -88,13 +88,12 @@ function animateSingleScrollFrame({
   // (beginning of the animation) and 1 (end of animation)
   const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
-  const normalizedAnimationProgressByBezierCurve = easeInOutQuadProgress(
+  const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
     absoluteAnimationProgress
   );
 
   const lengthToScrollPerSingleFrame =
-    (targetPositionY - scrollStartPositionY) *
-    normalizedAnimationProgressByBezierCurve;
+    (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
 
   const scrollStopAfterAnimationPosition =
     scrollStartPositionY + lengthToScrollPerSingleFrame;
@@ -111,8 +110,12 @@ function animateSingleScrollFrame({
   }
 }
 
-// посмотреть формулу тут -https://easings.net/#easeInOutQuad
-// проводим корректировку прогресса анимации с поправкой на кривую Безье
-function easeInOutQuadProgress(passed: number) {
-  return passed < 0.5 ? 2 * passed * passed : -1 + (4 - 2 * passed) * passed;
+function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
+  return easeInOutQuadProgress(animationProgress);
+}
+
+function easeInOutQuadProgress(animationProgress: number) {
+  return animationProgress < 0.5
+    ? 2 * animationProgress * animationProgress
+    : -1 + (4 - 2 * animationProgress) * animationProgress;
 }
