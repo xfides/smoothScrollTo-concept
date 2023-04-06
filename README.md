@@ -174,7 +174,7 @@ navigation?.addEventListener("click", (e) => {
   smoothScrollTo(scrollTargetElem);
 });
 
-export function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget: Element | null) {
   if (!scrollTarget) {
     return;
   }
@@ -186,7 +186,7 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
 
 ```js
-export function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget: Element | null) {
   if (!scrollTarget) {
     return;
   }
@@ -207,7 +207,7 @@ We need to grab the target element's Y-coordinate relative to the user's viewpor
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
 
 ```js
-export function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget: Element | null) {
   // ... previous stuff
   
   const scrollStartPositionY = Math.round(window.scrollY);
@@ -245,7 +245,7 @@ Check the schemes below.
 So now `smoothScrollTo()` function looks like that:
 
 ```js
-export function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget: Element | null) {
   // ... previous stuff
   
   const scrollStartPositionY = Math.round(window.scrollY);
@@ -269,7 +269,7 @@ There are 2 options to get a 'now'-timestamp:
 Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. So we should use this one to make the animation smooth and precise too.
 
 ```js
-export function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget: Element | null) {
   // ... previous stuff
   
   const startScrollTime = performance.now();
@@ -278,21 +278,21 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 
 ## Animation per frame function
 
-Each animation is, basically, some event which is happening in a timespan, and we can split this event-timespan thing into separate frames. Something like that:
+Essentially, each animation is an event that occurs over a duration, and we can break down this time-based event into separate frames. Something like this
 
 ![hand-drawn-animation-frames-element-collection_23-2149845068](https://user-images.githubusercontent.com/52240221/230394813-c214930d-7ae1-4fae-aaa1-7c87c2d1dc3b.jpg)
 
-So we need a function which handles a single frame motion, and basing on it we will build the whole animation.
+So, we need a function that handles single frame motion, and based on it, we will build the entire animation
 
-Let's define it, call in the `smoothScrollTo()` as a draft and pass a `startScrollTime` to it as an argument
+Let's define it, call it in the `smoothScrollTo()` as a draft, and pass `startScrollTime` to it:
 
 ```js
-export function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTarget: Element | null) {
   // ... previous stuff
   
   const startScrollTime = performance.now();
   
-  // there will be more arguments, therefore I group them into an object for more convenient handling
+  // There will be more arguments, so I'm grouping them into an object for more convenient handling
   animateSingleScrollFrame({
     startScrollTime
   })
