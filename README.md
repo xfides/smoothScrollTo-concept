@@ -516,7 +516,7 @@ function animateSingleScrollFrame({
     top: newPositionY,
   });
 }
-```\
+```
 
 In the video, you can see the difference in scroll length based on the dimension between `scrollStartPositionY` and `targetPositionY`:
 
