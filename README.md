@@ -252,15 +252,15 @@ targetPositionYRelativeToViewport + scrollStartPositionY;
 
 Check the schemes below.
 
-##### Case #1
+##### Example #1
 
 <img width="1048" alt="Снимок экрана 2023-04-06 003133" src="https://user-images.githubusercontent.com/52240221/230216458-a51587a3-70f8-4955-8a41-2caaca9d3b58.png">
 
-##### Case #2
+##### Example #2
 
 <img width="1148" alt="Снимок экрана 2023-04-06 003707" src="https://user-images.githubusercontent.com/52240221/230217606-ad0f60f9-a418-4f1a-9da4-c01d53f0cc85.png">
 
-##### Case #3
+##### Example #3
 
 <img width="1147" alt="Снимок экрана 2023-04-06 004127" src="https://user-images.githubusercontent.com/52240221/230218478-cf973bf2-d066-475c-ba67-03447e0fc689.png">
 
@@ -411,3 +411,63 @@ function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
   return easeInOutQuadProgress(animationProgress);
 }
 ```
+
+### Scroll length per frame
+
+The next step is to calculate how many pixels we should scroll during this animation frame, based on normalized animation progress and two coordinates: start position and target position. 
+
+We've already calculated the start position and target position in the `smoothScrollTo()` function, so now we should pass them to the `animateSingleScrollFrame()` function:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+}) {
+  if (!scrollTargetElem) {
+    return;
+  }
+
+  const scrollStartPositionY = Math.round(window.scrollY);
+
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTargetElem.getBoundingClientRect().top
+  );
+
+  const targetPositionY =
+    targetPositionYRelativeToViewport + scrollStartPositionY;
+
+  const startScrollTime = performance.now();
+
+  animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  });
+}
+```
+
+This dimension is absolute; we should know the length of the scroll path from the very start to the current frame point. The sign is for direction (we scroll up or down):
+
+```js
+function animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  }) {
+  // ... previous stuff
+  
+  const currentScrollLength =
+    (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
+}
+
+```
+
+#### Example #1
+
+<img width="1051" alt="image" src="https://user-images.githubusercontent.com/52240221/230448561-b66235f5-a586-4e27-9ad6-5db537f29234.png">
+
+#### Example #2
+
+<img width="861" alt="image" src="https://user-images.githubusercontent.com/52240221/230451269-5f62aa5e-3121-4dc5-bfe2-51f4b32a91a7.png">
