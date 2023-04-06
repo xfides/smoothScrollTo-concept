@@ -331,3 +331,16 @@ function smoothScrollTo({
 
 function animateSingleScrollFrame({startScrollTime, scrollDuration }) {}
 ```
+
+### Current Time Mock
+
+For each frame, we want to check how much time has already been spent on the animation. We have a `startScrollTime` value and now need to know the current time to calculate the elapsed time
+
+Technically, we would obtain a `currentTime` timestamp from `requestAnimationFrame()`, but we haven't implemented it yet. We will do so later. For now, we'll mock this value:
+
+```js
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // The '100' here is a magic number, used for mock purposes only, and will be removed upon the implementation of requestAnimationFrame()
+  const currentTime = performance.now() + 100;
+}
+```
