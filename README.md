@@ -358,3 +358,18 @@ function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
   const elapsedTime = currentTime - startScrollTime;
 }
 ```
+
+### Animation Progress
+
+The animation progress, which we calculate with the help of ёelapsedTimeё, shows how much of the animation is completed. We need an absolute progress ranging from 0 (beginning of the animation) to 1 (end of animation). This will help us calculate the scroll length in pixels per current frame later on
+
+It will be updated on each Event Loop tick.
+
+```js
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // ... previous stuff
+  
+  // If the progress exceeds 100% due to some browser lag, we'll stop at 1 and avoid errors here
+  const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
+}
+```
