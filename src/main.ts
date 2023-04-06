@@ -29,12 +29,10 @@ export function smoothScrollTo({
 
   const scrollStartPositionY = Math.round(window.scrollY);
 
-  // нашли элемент, к которому скроллим (координата относительно вьюпорта - надо рисунок приложить)
   const targetPositionYRelativeToViewport = Math.round(
     scrollTargetElem.getBoundingClientRect().top
   );
 
-  // позиция по Y относительно НЕ!!! вьюпорта, а страницы
   const targetPositionY =
     targetPositionYRelativeToViewport + scrollStartPositionY;
 
@@ -88,10 +86,11 @@ function animateSingleScrollFrame({
 
   // absolute progress of the animation in the bounds of 0
   // (beginning of the animation) and 1 (end of animation)
-  const animationProgress = Math.min(elapsedTime / scrollDuration, 1);
+  const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
-  const normalizedAnimationProgressByBezierCurve =
-    easeInOutQuadProgress(animationProgress);
+  const normalizedAnimationProgressByBezierCurve = easeInOutQuadProgress(
+    absoluteAnimationProgress
+  );
 
   const lengthToScrollPerSingleFrame =
     (targetPositionY - scrollStartPositionY) *
@@ -105,12 +104,11 @@ function animateSingleScrollFrame({
     top: scrollStopAfterAnimationPosition,
   });
 
-  console.log({
-    scrollStartPositionY,
-    targetPositionY,
-    scrollStopAfterAnimationPosition,
-    lengthToScrollPerSingleFrame,
-  });
+  if (elapsedTime < scrollDuration) {
+    console.log("Scroll me");
+  } else {
+    console.log("Scroll ends here");
+  }
 }
 
 // посмотреть формулу тут -https://easings.net/#easeInOutQuad
