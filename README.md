@@ -473,7 +473,7 @@ function animateSingleScrollFrame({
 
 ### New position Y-coordinate
 
-Ok, the purpose of the `animateSingleScrollFrame()` is to actually scroll. We need to know an actual Y-coordinate of point we scroll to and we've done all the preliminary calculations, therefore we ready to calculate the stop scroll point for current frame:
+Alright, the purpose of the `animateSingleScrollFrame()` function is to actually scroll. We need to know the actual Y-coordinate of the point we're scrolling to, and since we've done all the preliminary calculations, we're ready to calculate the stopping scroll point for the current frame:
 
 ```js
 function animateSingleScrollFrame({
@@ -496,3 +496,28 @@ function animateSingleScrollFrame({
 
 #### Example #2
 <img width="1049" alt="image" src="https://user-images.githubusercontent.com/52240221/230455407-4fa18d89-2cc8-4939-8c7c-ad644236cafe.png">
+
+### Let's Scroll!
+
+Now it's time to scroll the page! Although it's not smooth at the moment, it works!
+
+```js
+function animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  }) {
+  // ... previous stuff
+    
+  const newPositionY = scrollStartPositionY + currentScrollLength;
+  
+  window.scrollTo({
+    top: newPositionY,
+  });
+}
+```\
+
+In the video, you can see the difference in scroll length based on the dimension between `scrollStartPositionY` and `targetPositionY`:
+
+[Untitled_ Apr 6, 2023 8_58 PM.webm](https://user-images.githubusercontent.com/52240221/230458661-7885e840-09f2-49c5-8182-4ea6ee071e65.webm)
