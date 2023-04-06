@@ -35,13 +35,7 @@ navigation?.addEventListener("click", (e) => {
 
   const currentTarget = e.target;
 
-  // we must assure TS that currentTarget has an Element type
-  // if it's not of the Element type, it's a strange error, and the function will return.
-  if (!(currentTarget instanceof Element)) {
-    return;
-  }
-
-  // also we interested in a link we actually click
+  // we interested in a link we actually click
   const currentLink = currentTarget.closest(`.${DOM.navLink}`);
   
   // all the magic will be here on link click
@@ -72,12 +66,12 @@ We captured a link we've clicked here:
 const currentLink = currentTarget.closest(`.${DOM.navLink}`);
 ```
 
-We can't truly guarantee in TypeScript (without using dirty hacks) that JavaScript will 100% find this element in the DOM. That's why the implicit type of `currentLink` is `Element|null`.
+We can't truly guarantee that JavaScript will 100% find this element in the DOM. That's why `currentLink` can be either `Element` or `null`.
 
 So, we can pass it as an argument when `getScrollTargetElem` is called inside the event handler. Now, let's set it as a function parameter:
 
 ```js
-function getScrollTargetElem(clickedLinkElem: Element | null) {
+function getScrollTargetElem(clickedLinkElem) {
   if (!clickedLinkElem) {
     return null;
   }
@@ -91,13 +85,14 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
 The simplest part is grabbing the link's `href` value (and if there isn't any, we can't proceed further):
 
 ```js
-function getScrollTargetElem(clickedLinkElem: Element | null) {
+function getScrollTargetElem(clickedLinkElem) {
   if (!clickedLinkElem) {
     return null;
   }
 
   const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
 
+  // The href attribute may be left undefined or empty by the user
   if (!clickedLinkElemHref) {
     return null;
   }
@@ -128,7 +123,7 @@ There are 2 ways:
 I've preferred the 2nd way, it's simplier than any RegEx solution:
 
 ```js
-function getScrollTargetElem(clickedLinkElem: Element | null) {
+function getScrollTargetElem(clickedLinkElem) {
   // ... previous stuff
   
   let scrollTarget;
@@ -174,11 +169,32 @@ navigation?.addEventListener("click", (e) => {
   smoothScrollTo(scrollTargetElem);
 });
 
-export function smoothScrollTo(scrollTarget: Element | null) {
+function smoothScrollTo(scrollTargetElem) {
   if (!scrollTarget) {
     return;
   }
 }
+```
+
+### Scroll Duration
+
+The crucial thing we need to know is how long our animation should last. In our case, the user should be able to set it directly as a ` smoothScrollTo` parameter. Additionally, we will define a default value in case the user doesn't want to set any.
+
+```js
+const DEFAULT_SCROLL_ANIMATION_TIME = 500;
+
+navigation?.addEventListener("click", (e) => {
+  // ... previous stuff
+
+  // the user can set any time in milliseconds here
+  // I've also packed the arguments into objects for more convenient handling
+  smoothScrollTo({scrollTargetElem, scrollDuration: some_time_in_ms});
+});
+
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {}
 ```
 
 ### Get actual user Y-coordinate
@@ -186,8 +202,11 @@ export function smoothScrollTo(scrollTarget: Element | null) {
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
 
 ```js
-export function smoothScrollTo(scrollTarget: Element | null) {
-  if (!scrollTarget) {
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
+  if (!scrollTargetElem) {
     return;
   }
 
@@ -202,6 +221,303 @@ We know the starting point of scrolling, and we need one more point - the Y-coor
 
 #### Get the target element Y-coordinate relative to viewport
 
-First of all, we need to obtain the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
+We need to grab the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
 
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
+  // ... previous stuff
+  
+  const scrollStartPositionY = Math.round(window.scrollY);
+  
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTargetElem.getBoundingClientRect().top
+  );
+}
+```
+
+<img width="832" alt="Снимок экрана 2023-04-06 001122" src="https://user-images.githubusercontent.com/52240221/230212586-7bb7369f-45f1-49b5-9fa6-9266729970a5.png">
+
+#### Calc absolute target element Y-coordinate
+
+The absolute target element Y-coordinate can be calc based on the start scroll position and the relative coordinate. The formula is:
+
+```js
+targetPositionYRelativeToViewport + scrollStartPositionY;
+```
+
+Check the schemes below.
+
+##### Example #1
+
+<img width="1048" alt="Снимок экрана 2023-04-06 003133" src="https://user-images.githubusercontent.com/52240221/230216458-a51587a3-70f8-4955-8a41-2caaca9d3b58.png">
+
+##### Example #2
+
+<img width="1148" alt="Снимок экрана 2023-04-06 003707" src="https://user-images.githubusercontent.com/52240221/230217606-ad0f60f9-a418-4f1a-9da4-c01d53f0cc85.png">
+
+##### Example #3
+
+<img width="1147" alt="Снимок экрана 2023-04-06 004127" src="https://user-images.githubusercontent.com/52240221/230218478-cf973bf2-d066-475c-ba67-03447e0fc689.png">
+
+So now `smoothScrollTo()` function looks like that:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
+  // ... previous stuff
+  
+  const scrollStartPositionY = Math.round(window.scrollY);
+  
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTargetElem.getBoundingClientRect().top
+  );
+  
+  const targetPositionY = targetPositionYRelativeToViewport + scrollStartPositionY;
+}
+```
+
+### Get the scroll start timestamp
+
+We need this value for animation settings which would be discussed later. 
+
+There are 2 options to get a 'now'-timestamp:
+* `Date.now()`
+* `performance.now()`
+
+Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. So we should use this one to make the animation smooth and precise too.
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
+  // ... previous stuff
+  
+  const startScrollTime = performance.now();
+}
+```
+
+## Animation per frame function
+
+Essentially, each animation is an event that occurs over a duration, and we can break down this time-based event into separate frames. Something like this
+
+![hand-drawn-animation-frames-element-collection_23-2149845068](https://user-images.githubusercontent.com/52240221/230394813-c214930d-7ae1-4fae-aaa1-7c87c2d1dc3b.jpg)
+
+So, we need a function that handles single frame motion, and based on it, we will build the entire animation
+
+Let's define it, call it in the `smoothScrollTo()` as a draft, and pass `startScrollTime` and `scrollDuration` to it:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+}) {
+  // ... previous stuff
+  
+  const startScrollTime = performance.now();
+  
+  animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration
+  })
+}
+
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {}
+```
+
+### Current Time Mock
+
+For each frame, we want to check how much time has already been spent on the animation. We have a `startScrollTime` value and now need to know the current time to calculate the elapsed time
+
+Technically, we would obtain a `currentTime` timestamp from `requestAnimationFrame()`, but we haven't implemented it yet. We will do so later. For now, we'll mock this value:
+
+```js
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // The '100' here is a magic number, used for mock purposes only, 
+  // and will be removed upon the implementation of requestAnimationFrame()
+  const currentTime = performance.now() + 100;
+}
+```
+
+### Elapsed Time
+
+The elapsed time will be used to calculate the animation progress. When we implement `requestAnimationFrame()`, `currentTime` (and therefore, `elapsedTime`) will be updated on each Event Loop tick.
+
+```js
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // ... previous stuff
+  
+  // It's currently equal to 100ms due to the mock value
+  const elapsedTime = currentTime - startScrollTime;
+}
+```
+
+### Animation Progress
+
+The animation progress, which we calculate with the help of ёelapsedTimeё, shows how much of the animation is completed. We need an absolute progress ranging from 0 (beginning of the animation) to 1 (end of animation). This will help us calculate the scroll length in pixels per current frame later on
+
+It will be updated on each Event Loop tick.
+
+```js
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // ... previous stuff
+  
+  // If the progress exceeds 100% due to some browser lag, we'll stop at 1 and avoid errors here
+  const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
+}
+```
+
+### Animation Progress normalization by Bezier Curve
+
+#### Animation Easings
+
+If you want a simple linear animation, you can skip this step. However, we often prefer non-linear animations that are a bit more intricate, featuring nice easing effects, such as starting slow, speeding up, and then slowing down again towards the end.
+
+You can explore the most popular animation easing types based on Bezier Curves at [easings.net](https://easings.net/#). I've chosen the [easeInOutQuad](https://easings.net/#easeInOutQuad) mode for this project. On this page, you can find a function that calculates this easing effect:
+
+```js
+function easeInOutQuadProgress(animationProgress: number) {
+  return animationProgress < 0.5
+    ? 2 * animationProgress * animationProgress
+    : -1 + (4 - 2 * animationProgress) * animationProgress;
+}
+```
+
+This easing function takes the absolute animation progress, ranging between 0 and 1, and returns a corrected animation progress based on the easing calculation
+
+If our animation progress is less than `50%`, it will increase this progress, so the animation starts slowly and then speeds up. If the progress is more than `50%`, the animation will smoothly slow down.
+
+#### Animation Progress Normalization
+
+Let's create a wrapper function that takes `animationProgress` as a parameter and returns normalized progress from `easeInOutQuadProgress()`. I'm adding this extra function because later, we may want to handle more than just a single easing mode
+
+```js 
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // ... previous stuff
+  
+  const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
+    absoluteAnimationProgress
+  );
+}
+
+function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
+  return easeInOutQuadProgress(animationProgress);
+}
+```
+
+### Scroll length per frame
+
+The next step is to calculate how many pixels we should scroll during this animation frame, based on normalized animation progress and two coordinates: start position and target position. 
+
+We've already calculated the start position and target position in the `smoothScrollTo()` function, so now we should pass them to the `animateSingleScrollFrame()` function:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+}) {
+  if (!scrollTargetElem) {
+    return;
+  }
+
+  const scrollStartPositionY = Math.round(window.scrollY);
+
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTargetElem.getBoundingClientRect().top
+  );
+
+  const targetPositionY =
+    targetPositionYRelativeToViewport + scrollStartPositionY;
+
+  const startScrollTime = performance.now();
+
+  animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  });
+}
+```
+
+This dimension is absolute; we should know the length of the scroll path from the very start to the current frame point. The sign is for direction (we scroll up or down):
+
+```js
+function animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  }) {
+  // ... previous stuff
+  
+  const currentScrollLength =
+    (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
+}
+```
+
+#### Example #1
+
+<img width="1051" alt="image" src="https://user-images.githubusercontent.com/52240221/230448561-b66235f5-a586-4e27-9ad6-5db537f29234.png">
+
+#### Example #2
+
+<img width="861" alt="image" src="https://user-images.githubusercontent.com/52240221/230451269-5f62aa5e-3121-4dc5-bfe2-51f4b32a91a7.png">
+
+### New position Y-coordinate
+
+Alright, the purpose of the `animateSingleScrollFrame()` function is to actually scroll. We need to know the actual Y-coordinate of the point we're scrolling to, and since we've done all the preliminary calculations, we're ready to calculate the stopping scroll point for the current frame:
+
+```js
+function animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  }) {
+  // ... previous stuff
+  
+  const currentScrollLength =
+    (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
+    
+  const newPositionY = scrollStartPositionY + currentScrollLength;
+}
+```
+
+#### Example #1
+<img width="1044" alt="image" src="https://user-images.githubusercontent.com/52240221/230455012-1bc89900-9149-4bcb-998f-f725ed568aa6.png">
+
+#### Example #2
+<img width="1049" alt="image" src="https://user-images.githubusercontent.com/52240221/230455407-4fa18d89-2cc8-4939-8c7c-ad644236cafe.png">
+
+### Let's Scroll!
+
+Now it's time to scroll the page! Although it's not smooth at the moment, it works!
+
+```js
+function animateSingleScrollFrame({
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  }) {
+  // ... previous stuff
+    
+  const newPositionY = scrollStartPositionY + currentScrollLength;
+  
+  window.scrollTo({
+    top: newPositionY,
+  });
+}
+```
+
+In the video, you can see the difference in scroll length based on the dimension between `scrollStartPositionY` and `targetPositionY`:
+
+[Untitled_ Apr 6, 2023 8_58 PM.webm](https://user-images.githubusercontent.com/52240221/230458661-7885e840-09f2-49c5-8182-4ea6ee071e65.webm)
