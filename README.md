@@ -380,7 +380,7 @@ function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
 
 If you want a simple linear animation, you can skip this step. However, we often prefer non-linear animations that are a bit more intricate, featuring nice easing effects, such as starting slow, speeding up, and then slowing down again towards the end.
 
-You can explore the most popular animation easing types at [easings.net](https://easings.net/#). I've chosen the [easeInOutQuad](https://easings.net/#easeInOutQuad) mode for this project. On this page, you can find a function that calculates this easing effect:
+You can explore the most popular animation easing types based on Bezier Curves at [easings.net](https://easings.net/#). I've chosen the [easeInOutQuad](https://easings.net/#easeInOutQuad) mode for this project. On this page, you can find a function that calculates this easing effect:
 
 ```js
 function easeInOutQuadProgress(animationProgress: number) {
@@ -393,3 +393,21 @@ function easeInOutQuadProgress(animationProgress: number) {
 This easing function takes the absolute animation progress, ranging between 0 and 1, and returns a corrected animation progress based on the easing calculation
 
 If our animation progress is less than `50%`, it will increase this progress, so the animation starts slowly and then speeds up. If the progress is more than `50%`, the animation will smoothly slow down.
+
+#### Animation Progress Normalization
+
+Let's create a wrapper function that takes `animationProgress` as a parameter and returns normalized progress from `easeInOutQuadProgress()`. I'm adding this extra function because later, we may want to handle more than just a single easing mode
+
+```js 
+function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
+  // ... previous stuff
+  
+  const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
+    absoluteAnimationProgress
+  );
+}
+
+function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
+  return easeInOutQuadProgress(animationProgress);
+}
+```
