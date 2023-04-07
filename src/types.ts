@@ -11,6 +11,6 @@ export interface IAnimateSingleScrollFrame {
 }
 
 export interface IAnimateSingleScrollFrameProps {
-  (x: IAnimateSingleScrollFrame, currentTime: number): void;
+  (currentTime: number): void;
   animationFrameSettings: IAnimateSingleScrollFrame;
 }
