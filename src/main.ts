@@ -91,8 +91,6 @@ function animateSingleScrollFrame(
   // как это, блин, работает?? Почему currentTime меньше startTime??!!!
   const elapsedTime = Math.max(currentTime - startScrollTime, 0);
 
-  console.log(elapsedTime);
-
   const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
   const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
@@ -108,8 +106,20 @@ function animateSingleScrollFrame(
     top: newPositionY,
   });
 
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  };
+
+  const boundFrameAnimation = animateSingleScrollFrame.bind(
+    null,
+    animationFrameSettings
+  );
+
   if (elapsedTime < scrollDuration) {
-    console.log("Scroll me");
+    requestAnimationFrame(boundFrameAnimation);
   } else {
     console.log("Scroll ends here");
   }
