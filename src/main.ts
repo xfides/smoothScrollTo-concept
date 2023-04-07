@@ -63,6 +63,8 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
     return null;
   }
 
+  const a = 5;
+
   const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
 
   if (!clickedLinkElemHref) {
@@ -82,14 +84,15 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
 }
 
 const animateSingleScrollFrame: IAnimateSingleScrollFrameProps = (
-  {
-    startScrollTime,
-    scrollDuration,
-    scrollStartPositionY,
-    targetPositionY,
-  }: IAnimateSingleScrollFrame,
   currentTime: number
 ): void => {
+  const {
+    targetPositionY,
+    scrollStartPositionY,
+    scrollDuration,
+    startScrollTime,
+  } = animateSingleScrollFrame.animationFrameSettings;
+
   // как это, блин, работает?? Почему currentTime меньше startTime??!!!
   const elapsedTime = Math.max(currentTime - startScrollTime, 0);
 
@@ -114,13 +117,6 @@ const animateSingleScrollFrame: IAnimateSingleScrollFrameProps = (
     scrollStartPositionY,
     targetPositionY,
   };
-
-  TS2345: Argument of type 'IAnimateSingleScrollFrameProps' is
-  not assignable to parameter of type 'FrameRequestCallback'.
-
-    interface FrameRequestCallback {
-    (time: DOMHighResTimeStamp): void;
-  }
 
   if (elapsedTime < scrollDuration) {
     requestAnimationFrame(animateSingleScrollFrame);
