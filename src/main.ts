@@ -38,12 +38,21 @@ export function smoothScrollTo({
 
   const startScrollTime = performance.now();
 
-  animateSingleScrollFrame({
+  console.log("39: ", startScrollTime);
+
+  const animationFrameSettings = {
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-  });
+  };
+
+  const boundFrameAnimation = animateSingleScrollFrame.bind(
+    null,
+    animationFrameSettings
+  );
+
+  requestAnimationFrame(boundFrameAnimation);
 }
 
 // найти target
@@ -70,16 +79,19 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   return scrollTarget;
 }
 
-function animateSingleScrollFrame({
-  startScrollTime,
-  scrollDuration,
-  scrollStartPositionY,
-  targetPositionY,
-}: IAnimateSingleScrollFrame) {
-  // временный костыль, пока не сделаем raf
-  const currentTime = performance.now() + 100;
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  }: IAnimateSingleScrollFrame,
+  currentTime: number
+) {
+  // как это, блин, работает?? Почему currentTime меньше startTime??!!!
+  const elapsedTime = Math.max(currentTime - startScrollTime, 0);
 
-  const elapsedTime = currentTime - startScrollTime;
+  console.log(elapsedTime);
 
   const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
