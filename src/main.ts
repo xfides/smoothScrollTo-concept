@@ -1,5 +1,9 @@
 import { DOM, DEFAULT_SCROLL_ANIMATION_TIME } from "./consts";
-import { ISmoothScrollToProps, IAnimateSingleScrollFrame } from "./types";
+import {
+  ISmoothScrollToProps,
+  IAnimateSingleScrollFrame,
+  IAnimateSingleScrollFrameProps,
+} from "./types";
 
 const navigation = document.querySelector(`.${DOM.nav}`);
 
@@ -38,8 +42,6 @@ export function smoothScrollTo({
 
   const startScrollTime = performance.now();
 
-  console.log("39: ", startScrollTime);
-
   const animationFrameSettings = {
     startScrollTime,
     scrollDuration,
@@ -47,12 +49,12 @@ export function smoothScrollTo({
     targetPositionY,
   };
 
-  const boundFrameAnimation = animateSingleScrollFrame.bind(
-    null,
-    animationFrameSettings
-  );
+  animateSingleScrollFrame.animationFrameSettings = {
+    ...animationFrameSettings,
+  };
 
-  requestAnimationFrame(boundFrameAnimation);
+  // requestAnimationFrame(boundFrameAnimation);
+  requestAnimationFrame(animateSingleScrollFrame);
 }
 
 // найти target
@@ -79,7 +81,7 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   return scrollTarget;
 }
 
-function animateSingleScrollFrame(
+const animateSingleScrollFrame: IAnimateSingleScrollFrameProps = (
   {
     startScrollTime,
     scrollDuration,
@@ -87,7 +89,7 @@ function animateSingleScrollFrame(
     targetPositionY,
   }: IAnimateSingleScrollFrame,
   currentTime: number
-) {
+): void => {
   // как это, блин, работает?? Почему currentTime меньше startTime??!!!
   const elapsedTime = Math.max(currentTime - startScrollTime, 0);
 
@@ -113,17 +115,26 @@ function animateSingleScrollFrame(
     targetPositionY,
   };
 
-  const boundFrameAnimation = animateSingleScrollFrame.bind(
-    null,
-    animationFrameSettings
-  );
+  TS2345: Argument of type 'IAnimateSingleScrollFrameProps' is
+  not assignable to parameter of type 'FrameRequestCallback'.
+
+    interface FrameRequestCallback {
+    (time: DOMHighResTimeStamp): void;
+  }
 
   if (elapsedTime < scrollDuration) {
-    requestAnimationFrame(boundFrameAnimation);
+    requestAnimationFrame(animateSingleScrollFrame);
   } else {
     console.log("Scroll ends here");
   }
-}
+};
+
+animateSingleScrollFrame.animationFrameSettings = {
+  startScrollTime: 0,
+  targetPositionY: 0,
+  scrollStartPositionY: 0,
+  scrollDuration: 0,
+};
 
 function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
   return easeInOutQuadProgress(animationProgress);

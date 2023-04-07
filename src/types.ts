@@ -9,3 +9,8 @@ export interface IAnimateSingleScrollFrame {
   scrollStartPositionY: number;
   targetPositionY: number;
 }
+
+export interface IAnimateSingleScrollFrameProps {
+  (x: IAnimateSingleScrollFrame, currentTime: number): void;
+  animationFrameSettings: IAnimateSingleScrollFrame;
+}
