@@ -659,11 +659,11 @@ function animateSingleScrollFrame(
 
 [Untitled_ Apr 8, 2023 2_34 PM.webm](https://user-images.githubusercontent.com/52240221/230718929-876dd79e-8d6d-446b-80ee-bddb1ef22870.webm)
 
-## The last thing: callback on animation end
+## The last thing: a callback on animation end
 
-It's not a critical feature, just the nice small cherry on the cake. Let's add a callback which will be executed when the animation is fully completed.
+It's not a critical feature, just a nice small cherry on the cake. Let's add a callback that will be executed when the animation is fully completed.
 
-We will pass it in the `smoothScrollTo()` function as it is our entry point. Let's pass a small `console.log()` callback:
+We will pass it in the `smoothScrollTo()` function, as it is our entry point. Let's pass a small `console.log()` callback:
 
 ```js
 navigation?.addEventListener("click", (e) => {
@@ -677,7 +677,7 @@ navigation?.addEventListener("click", (e) => {
 });
 ```
 
-We do not use it directly in the `smoothScrollTo()`. Actually, it can be executed into the `animateSingleScrollFrame()`. We have a condition there if we have time to continue animation or not. If we have no more time it means that our animation ends, and we could call a callback:
+We do not use it directly in the `smoothScrollTo()`. Actually, it can be executed in the `animateSingleScrollFrame()`. We have a condition there to check if we have time to continue the animation or not. If we have no more time, it means that our animation ends, and we could call the callback:
 
 ```js
 function smoothScrollTo({
@@ -732,3 +732,5 @@ function animateSingleScrollFrame(
   }
 }
 ```
+
+[Untitled_ Apr 8, 2023 2_56 PM.webm](https://user-images.githubusercontent.com/52240221/230719801-3186ccbf-8623-445b-837b-a1588bf487dc.webm)
