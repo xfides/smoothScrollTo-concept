@@ -531,3 +531,72 @@ The recursive `requestAnimationFrame()` will help us here. Fortunately, it's not
 ### What is `requestAnimationFrame()`?
 
 `requestAnimationFrame()` (aka RAF) is a function that takes a callback with some animation as an argument, and then on each Event Loop tick, it nudges the browser to call this callback right before the repaint stage. 1 Event Loop tick -> 1 frame -> 1 `requestAnimationFrame()`. That's why we need to call it repeatedly until the animation is completed.
+
+### Add a recursion into our code
+
+Each recursion is based on 2 main points:
+* a place for the first function call;
+* a condition, in which if it is `true` we call the function again and again, and if it is `false` we stop the recursive function calls;
+
+#### A place for the first function call
+
+The first function call will be inside the `smoothScrollTo()` function as a starting animation point.
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+}) {
+  // ... previous stuff
+
+  // This is how we want to initially call RAF and pass an animation function as a callback
+  requestAnimationFrame(animateSingleScrollFrame)
+}
+```
+
+#### ⚠️ A Pitfall
+
+By design, `requestAnimationFrame()` passes a `currentTime` timestamp as an argument to the callback. Do you remember when we mocked the `currentTime` earlier? We can't simply call RAF like this:
+
+```js
+requestAnimationFrame(animateSingleScrollFrame) 
+```
+
+... because the `animateSingleScrollFrame()` function should accept not only the currentTime argument, but also an object with the animation settings we've passed in it earlier.
+
+We need to use an arrow function here:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+}) {
+  // ... previous stuff
+
+  // all the things we've passed into `animateSingleScrollFrame` earlier
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY
+  };
+  
+  // an actual RAF call
+  requestAnimationFrame((currentTime) =>
+    animateSingleScrollFrame(animationFrameSettings, currentTime)
+  );
+```
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  },
+  currentTime: number
+) {
+  // ... a function inner content
+}
+```
