@@ -631,3 +631,26 @@ function animateSingleScrollFrame(
   }
 }
 ```
+
+### Remove `currentTime` mocks
+
+Now we have a working recursion and an actual `currentTime` we have received from RAF. There could be a case when, on the first RAF call, `currentTime` is somehow smaller than `startScrollTime`. We should support this case and, if `elapsedTime < 0`, we return `0` there
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  },
+  currentTime: number
+) {
+  
+  // here, we remove the currentTime mocks and apply a Math.max to support the case when elapsedTime < 0
+  const elapsedTime = Math.max(currentTime - startScrollTime, 0);
+  
+  // ... next stuff
+  
+}
+```
