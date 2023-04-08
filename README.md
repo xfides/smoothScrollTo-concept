@@ -805,3 +805,9 @@ function animateSingleScrollFrame(
 ```
 
 [Untitled_ Apr 8, 2023 2_56 PM.webm](https://user-images.githubusercontent.com/52240221/230719801-3186ccbf-8623-445b-837b-a1588bf487dc.webm)
+
+## A final word
+
+We've built a fully complete Smooth Scroll concept. You can use it in your projects as is, or extend it with additional easing animations, end-of-animation callbacks, or other features! Feel free to use the code however you like!
+
+I would be really glad to receive your feedback!
