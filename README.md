@@ -1,19 +1,22 @@
 # smoothScrollTo() Function Concept
 
 ## Content
-* [Main idea](#main-idea) 
-* [Prerequisites](#prerequisites)
-* [Basic layout](#basic-layout)
-* [Adding event listener on the navigation](#adding-event-listener-on-the-navigation)
-* [Function `getScrollTargetElem` get target to which it needs to scroll](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll)
+* [Main idea](#main-idea-table-of-contents) 
+* [Prerequisites](#prerequisites-table-of-contents)
+* [Basic layout](#basic-layout-table-of-contents)
+* [Adding event listener on the navigation](#adding-event-listener-on-the-navigation-table-of-contents)
+* [Function `getScrollTargetElem` get target to which it needs to scroll](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll-table-of-contents)
+  * [Get the clicked link](#get-the-clicked-link)
+  * [Obtain and validate link `href` value](#obtain-and-validate-link-href-value)
+* [Function `smoothScrollTo` and it's basic variables](#function-smoothscrollto-and-its-basic-variables-table-of-contents)
 
-## Main idea
+## Main idea ([Table of Contents](#content))
 
 I'm implementing my own vanilla JS alternative to the browser's `scroll-behavior: smooth` feature here. It's useful for cases when you need to combine this functionality with complex scroll JS behavior.
 
 You could check a [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QWZwOdb/5db409195086b5b1631055fbcb6c94e5)
 
-## Prerequisites
+## Prerequisites ([Table of Contents](#content))
 
 For a good understanding of the article, the following are necessary:
 * basic layout: lists, positioning...
@@ -21,7 +24,7 @@ For a good understanding of the article, the following are necessary:
 * TypeScript: function types, interfaces
 * your good mood
 
-## Basic layout
+## Basic layout ([Table of Contents](#content))
 
 ### HTML
 
@@ -95,15 +98,15 @@ section:nth-of-type(2n) {
 ```
 </details>
 
-## Adding event listener on the navigation
+## Adding event listener on the navigation ([Table of Contents](#content))
 
   First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern). 
   
   Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it to discard immediate transition.
   
-  Then we need to calculate the element to which the scroll will be performed. The function `getScrollTargetElem` do it an is described [below](#getScrollTargetElem).
+  Then we need to calculate the element to which the scroll will be performed. The function `getScrollTargetElem` do it an is described [below](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll).
   
-  In the end, the magic of smooth scrolling will happen. The function `smoothScrollTo` will be [responsible](#smoothScrollTo) for this.
+  In the end, the magic of smooth scrolling will happen. The function `smoothScrollTo` will be [responsible](#function-smoothscrollto-and-its-basic-variables) for this.
 
 ```js
 // I prefer to store all the DOM selector strings 
@@ -132,9 +135,9 @@ navigation?.addEventListener("click", (e) => {
 });
 ```
 
-## Function `getScrollTargetElem` get target to which it needs to scroll
+## Function `getScrollTargetElem` get target to which it needs to scroll ([Table of Contents](#content))
 
-The purpose of the [`smoothScrollTo()`](#smoothscrollto()-function-and-it's-basic-variables) function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem` that will do this.
+The purpose of the [`smoothScrollTo()`](#function-smoothscrollto-and-its-basic-variables) function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem` that will do this.
 
 What should `getScrollTargetElem` function do:
 * get the link we've clicked;
@@ -145,14 +148,14 @@ What should `getScrollTargetElem` function do:
 
 ### Get the clicked link
 
-We captured some element on the page we've clicked here. We implement the event delegation pattern. Check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function. Note that after this and the following unsuccessful checks, we will return `null` as a signal that the getScrollTargetElem function failed to find the target to which the scroll should be performed.
+We captured some element on the page we've clicked here. We implement the event delegation pattern. Check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function. Note that after this and the following unsuccessful checks, we will return `null` as a signal that the `getScrollTargetElem` function failed to find the target to which the scroll should be performed.
 
-We can't truly guarantee that JavaScript will 100% find this element in the DOM. That's why `currentLink` can be either `Element` or `null`.
-
-So, we can pass it as an argument when `getScrollTargetElem` is called inside the event handler. Now, let's set it as a function parameter:
+We can't truly guarantee that JavaScript will 100% find this element in the DOM. That's why `clickedLinkElem` can be either `Element` or `null`.
 
 ```js
 function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
+  
+  // did you know that event.target may not be a DOM Element?
   if (!(clickedTargetElem instanceof Element)) {
     return null;
   }
@@ -170,24 +173,8 @@ function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
 
 ### Obtain and validate link `href` value
 
-The simplest part is grabbing the link's `href` value (and if there isn't any, we can't proceed further):
+The next part is grabbing the link's `href` value (and if there isn't any, we can't proceed further).
 
-```js
-function getScrollTargetElem(clickedLinkElem) {
-  if (!clickedLinkElem) {
-    return null;
-  }
-
-  const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
-
-  // The href attribute may be left undefined or empty by the user
-  if (!clickedLinkElemHref) {
-    return null;
-  }
-  
-  const scrollTarget = document.querySelector(clickedLinkElemHref);
-}
-```
 The desired result is a scroll target element ID, like `#section1`. We should use it to find the target element itself. But what if the `href` contains a link to an external resource or some other invalid value? Let's check what happens if we pass not an element ID, but an external resource link:
 
 ```html
@@ -204,18 +191,31 @@ The desired result is a scroll target element ID, like `#section1`. We should us
 So, we need to validate the `clickedLinkElemHref` value somehow before passing it to `querySelector()`.
 
 There are 2 ways:
-
 * implement some kind of RegEx to check if the value is valid;
 * we can use a `try/catch`-block to handle the thrown `Error` case if the value is invalid;
 
-I've preferred the 2nd way, it's simplier than any RegEx solution:
+I've preferred the 2nd way, it's simplier than any RegEx solution. So the full code of `getScrollTargetElem` looks like that:
 
 ```js
-function getScrollTargetElem(clickedLinkElem) {
-  // ... previous stuff
-  
+function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
+  if (!(clickedTargetElem instanceof Element)) {
+    return null;
+  }
+
+  const clickedLinkElem = clickedTargetElem.closest(`.${DOM.navLink}`);
+
+  if (!clickedLinkElem) {
+    return null;
+  }
+
+  const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
+
+  if (!clickedLinkElemHref) {
+    return null;
+  }
+
   let scrollTarget;
-  
+
   try {
     scrollTarget = document.querySelector(clickedLinkElemHref);
   } catch (e) {
@@ -227,23 +227,7 @@ function getScrollTargetElem(clickedLinkElem) {
 }
 ```
 
-### Get actual scrollTo target
-
-Let's get the element (or `null`) in the event handler:
-
-```js
-navigation?.addEventListener("click", (e) => {
-  // ... previous stuff
-
-  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
-
-  const scrollTargetElem = getScrollTargetElem(currentLink);
-
-  smoothScrollTo(scrollTargetElem);
-});
-```
-
-## smoothScrollTo() function and it's basic variables
+## Function `smoothScrollTo` and it's basic variables ([Table of Contents](#content))
 
 The actual function that performs all the magic is a function that smoothly scrolls to the target. We call it in the event handler after target definition, as it should know the point to which it should actually scroll
 
