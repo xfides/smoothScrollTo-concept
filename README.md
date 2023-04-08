@@ -4,6 +4,77 @@
 
 I'm implementing my own vanilla JS alternative to the browser's `scroll-behavior: smooth` feature here. It's useful for cases when you need to combine this functionality with complex scroll JS behavior.
 
+## Demo, HTML & CSS
+
+You could check a [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QWZwOdb/5db409195086b5b1631055fbcb6c94e5)
+
+### HTML
+
+The HTML structure here is simple: just a navigation with 3 links and 3 sections corresponding to them:
+
+```html
+<body>
+  <nav class="navigation">
+    <a class="navigation__link" href="#section1">Section 1</a>
+    <a class="navigation__link" href="#section2">Section 2</a>
+    <a class="navigation__link" href="#section3">Section 3</a>
+  </nav>
+  <section id="section1">Section 1</section>
+  <section id="section2">Section 2</section>
+  <section id="section3">Section 3</section>
+</body>
+```
+
+### CSS
+
+The styles are simple too. I've made the navigation fixed and added some decorative section styles to visually separate them:
+
+```css
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial';
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+    padding: 20px 0;
+    background-color: #fff;
+}
+
+nav a {
+    color: black;
+    text-decoration: none;
+    transition: color .2s linear 0s;
+}
+
+nav a:hover {
+    color: green;
+}
+
+section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    font-size: 40px;
+    color: #fff;
+    background-color: black;
+}
+
+section:nth-of-type(2n) {
+    background-color: gray;
+}
+```
+
 ## Event Listener
 
 First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern)
