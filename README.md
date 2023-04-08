@@ -531,3 +531,204 @@ The recursive `requestAnimationFrame()` will help us here. Fortunately, it's not
 ### What is `requestAnimationFrame()`?
 
 `requestAnimationFrame()` (aka RAF) is a function that takes a callback with some animation as an argument, and then on each Event Loop tick, it nudges the browser to call this callback right before the repaint stage. 1 Event Loop tick -> 1 frame -> 1 `requestAnimationFrame()`. That's why we need to call it repeatedly until the animation is completed.
+
+### Add a recursion into our code
+
+Each recursion is based on 2 main points:
+* a place for the first function call;
+* a condition, in which if it is `true` we call the function again and again, and if it is `false` we stop the recursive function calls;
+
+#### A place for the first function call
+
+The first function call will be inside the `smoothScrollTo()` function as a starting animation point.
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+}) {
+  // ... previous stuff
+
+  // This is how we want to initially call RAF and pass an animation function as a callback
+  requestAnimationFrame(animateSingleScrollFrame)
+}
+```
+
+#### ⚠️ A Pitfall
+
+By design, `requestAnimationFrame()` passes a `currentTime` timestamp as an argument to the callback. Do you remember when we mocked the `currentTime` earlier? We can't simply call RAF like this:
+
+```js
+requestAnimationFrame(animateSingleScrollFrame) 
+```
+
+... because the `animateSingleScrollFrame()` function should accept not only the currentTime argument, but also an object with the animation settings we've passed in it earlier.
+
+We need to use an arrow function here:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+}) {
+  // ... previous stuff
+
+  // all the things we've passed into `animateSingleScrollFrame` earlier
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY
+  };
+  
+  // an actual RAF call
+  requestAnimationFrame((currentTime) =>
+    animateSingleScrollFrame(animationFrameSettings, currentTime)
+  );
+```
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  },
+  currentTime: number
+) {
+  // ... a function inner content
+}
+```
+#### Add a recursion repeating condition
+
+This is a pretty straightforward thing. If our duration time is greater than the elapsed time, we have time for a new animation frame, so we should continue the recursive RAF:
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY
+  },
+  currentTime: number
+) {
+ 
+  // ... previuos stuff
+
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  };
+
+  if (elapsedTime < scrollDuration) {
+    requestAnimationFrame((currentTime) =>
+      animateSingleScrollFrame(animationFrameSettings, currentTime)
+    );
+  }
+}
+```
+
+### Remove `currentTime` mocks
+
+Now we have a working recursion and an actual `currentTime` we have received from RAF. There could be a case when, on the first RAF call, `currentTime` is somehow smaller than `startScrollTime`. We should support this case and, if `elapsedTime < 0`, we return `0` there
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  },
+  currentTime: number
+) {
+  
+  // here, we remove the currentTime mocks and apply a Math.max to support the case when elapsedTime < 0
+  const elapsedTime = Math.max(currentTime - startScrollTime, 0);
+  
+  // ... next stuff
+  
+}
+```
+
+## 🎉 It animates now!
+
+[Untitled_ Apr 8, 2023 2_34 PM.webm](https://user-images.githubusercontent.com/52240221/230718929-876dd79e-8d6d-446b-80ee-bddb1ef22870.webm)
+
+## The last thing: callback on animation end
+
+It's not a critical feature, just the nice small cherry on the cake. Let's add a callback which will be executed when the animation is fully completed.
+
+We will pass it in the `smoothScrollTo()` function as it is our entry point. Let's pass a small `console.log()` callback:
+
+```js
+navigation?.addEventListener("click", (e) => {
+  // ... previous stuff
+
+  smoothScrollTo({
+    scrollTargetElem,
+    // a simple on animation end callback
+    onAnimationEnd: () => console.log("animation ends"),
+  });
+});
+```
+
+We do not use it directly in the `smoothScrollTo()`. Actually, it can be executed into the `animateSingleScrollFrame()`. We have a condition there if we have time to continue animation or not. If we have no more time it means that our animation ends, and we could call a callback:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd
+}) {
+  // ... previous stuff
+
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    // add it as a new setting to the settings object
+    onAnimationEnd
+  };
+  
+  // ... next stuff
+```
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    // we get it here as a setting
+    onAnimationEnd,
+  }: IAnimateSingleScrollFrame,
+  currentTime: number
+) {
+  // ... previous stuff
+
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    // add it as a new setting to the settings object
+    onAnimationEnd,
+  };
+
+  if (elapsedTime < scrollDuration) {
+    requestAnimationFrame((currentTime) =>
+      animateSingleScrollFrame(animationFrameSettings, currentTime)
+    );
+  // check if a callback is passed to the function
+  } else if (onAnimationEnd) {
+    onAnimationEnd();
+  }
+}
+```
