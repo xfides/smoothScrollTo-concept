@@ -94,13 +94,17 @@ section:nth-of-type(2n) {
 ```
 </details>
 
-## Adding event listener on the navigation using event delegation
+## Let's start writing code
+
+### Adding event listener on the navigation
 
   First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern). 
   
   Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it.
   
-  Finally, we implement the event delegation pattern: we check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function and do nothing
+  Then we need to calculate the element to which the scroll will be performed. The function `getScrollTargetElem` is described below.
+  
+  In the end, the magic of smooth scrolling will happen. The function `smoothScrollTo` will be responsible for this.
 
 ```js
 // I prefer to store all the DOM selector strings 
@@ -117,12 +121,16 @@ const navigation = document.querySelector(`.${DOM.nav}`);
 navigation?.addEventListener("click", (e) => {
   e.preventDefault();
 
-  const currentTarget = e.target;
+  // encapsulates many checks for finding the element 
+  // to which we need to make a smooth scroll
+  const scrollTargetElem = getScrollTargetElem(e.target);
 
-  // we are interested in a link we actually click
-  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
-  
   // all the magic will be here on link click
+  smoothScrollTo({
+    scrollTargetElem,
+    onAnimationEnd: () => console.log("animation ends"),
+  });
+  
 });
 ```
 
@@ -138,6 +146,8 @@ What should it do:
   * if yes, grab the target element and return it;
 
 ### Get the clicked link
+  (Finally, we implement the event delegation pattern: we check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function and do nothing)
+
 
 We captured a link we've clicked here:
 
