@@ -600,3 +600,34 @@ function animateSingleScrollFrame(
   // ... a function inner content
 }
 ```
+#### Add a recursion repeating condition
+
+This is a pretty straightforward thing. If our duration time is greater than the elapsed time, we have time for a new animation frame, so we should continue the recursive RAF:
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY
+  },
+  currentTime: number
+) {
+ 
+  // ... previuos stuff
+
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+  };
+
+  if (elapsedTime < scrollDuration) {
+    requestAnimationFrame((currentTime) =>
+      animateSingleScrollFrame(animationFrameSettings, currentTime)
+    );
+  }
+}
+```
