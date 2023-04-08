@@ -654,3 +654,81 @@ function animateSingleScrollFrame(
   
 }
 ```
+
+## 🎉 It animates now!
+
+[Untitled_ Apr 8, 2023 2_34 PM.webm](https://user-images.githubusercontent.com/52240221/230718929-876dd79e-8d6d-446b-80ee-bddb1ef22870.webm)
+
+## The last thing: callback on animation end
+
+It's not a critical feature, just the nice small cherry on the cake. Let's add a callback which will be executed when the animation is fully completed.
+
+We will pass it in the `smoothScrollTo()` function as it is our entry point. Let's pass a small `console.log()` callback:
+
+```js
+navigation?.addEventListener("click", (e) => {
+  // ... previous stuff
+
+  smoothScrollTo({
+    scrollTargetElem,
+    // a simple on animation end callback
+    onAnimationEnd: () => console.log("animation ends"),
+  });
+});
+```
+
+We do not use it directly in the `smoothScrollTo()`. Actually, it can be executed into the `animateSingleScrollFrame()`. We have a condition there if we have time to continue animation or not. If we have no more time it means that our animation ends, and we could call a callback:
+
+```js
+function smoothScrollTo({
+  scrollTargetElem,
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd
+}) {
+  // ... previous stuff
+
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    // add it as a new setting to the settings object
+    onAnimationEnd
+  };
+  
+  // ... next stuff
+```
+
+```js
+function animateSingleScrollFrame(
+  {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    // we get it here as a setting
+    onAnimationEnd,
+  }: IAnimateSingleScrollFrame,
+  currentTime: number
+) {
+  // ... previous stuff
+
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    // add it as a new setting to the settings object
+    onAnimationEnd,
+  };
+
+  if (elapsedTime < scrollDuration) {
+    requestAnimationFrame((currentTime) =>
+      animateSingleScrollFrame(animationFrameSettings, currentTime)
+    );
+  // check if a callback is passed to the function
+  } else if (onAnimationEnd) {
+    onAnimationEnd();
+  }
+}
+```
