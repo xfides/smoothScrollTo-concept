@@ -14,12 +14,12 @@ navigation?.addEventListener("click", (e) => {
   });
 });
 
-function getScrollTargetElem(clickedElem: EventTarget | null) {
-  if (!(clickedElem instanceof Element)) {
+function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
+  if (!(clickedTargetElem instanceof Element)) {
     return null;
   }
 
-  const clickedLinkElem = clickedElem.closest(`.${DOM.navLink}`);
+  const clickedLinkElem = clickedTargetElem.closest(`.${DOM.navLink}`);
 
   if (!clickedLinkElem) {
     return null;
