@@ -1,16 +1,31 @@
 # smoothScrollTo() Function Concept
 
-## What is it
+## Content
+- [Main idea](#main-idea) 
+- [Prerequisites](#prerequisites)
+- [Basic structure: HTML & CSS](#basic-structure:-html-&-css)
+- [Adding event listener on the navigation using event delegation](#adding-event-listener-on-the-navigation-using-event-delegation)
+
+## Main idea
 
 I'm implementing my own vanilla JS alternative to the browser's `scroll-behavior: smooth` feature here. It's useful for cases when you need to combine this functionality with complex scroll JS behavior.
 
-## Demo, HTML & CSS
-
 You could check a [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QWZwOdb/5db409195086b5b1631055fbcb6c94e5)
+
+## Prerequisites
+
+For a good understanding of the article, the following are necessary:
+- basic layout: lists, positioning...
+- Javascript: DOM, events, modules...
+- TypeScript: function typing, interfaces
+- your good mood
+
+## Basic structure: HTML & CSS
 
 ### HTML
 
-The HTML structure here is simple: just a navigation with 3 links and 3 sections corresponding to them:
+The HTML structure here is simple: just a navigation with 3 links and 3 sections corresponding to them.
+Yes, the navigation already works by means of the combination of href and id attributes. But the transition is immediate. Our task is to make it smooth.
 
 ```html
 <body>
@@ -27,7 +42,10 @@ The HTML structure here is simple: just a navigation with 3 links and 3 sections
 
 ### CSS
 
-The styles are simple too. I've made the navigation fixed and added some decorative section styles to visually separate them:
+The styles are simple too. I've made the navigation fixed and added some decorative section styles to visually separate them due to the use of alternating background colors:
+
+<details>
+<summary>CSS code</summary>
 
 ```css
 * {
@@ -74,39 +92,34 @@ section:nth-of-type(2n) {
     background-color: gray;
 }
 ```
+</details>
 
-## Event Listener
+## Adding event listener on the navigation using event delegation
 
-First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern)
+  First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern). 
+  
+  Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it.
+  
+  Finally, we implement the event delegation pattern: we check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function and do nothing
 
 ```js
-// I prefer to store all the DOM selector strings into a single object
+// I prefer to store all the DOM selector strings 
+// into a single object for further reuse
 const DOM = {
   nav: "navigation",
   navLink: "navigation__link",
 };
 
 const navigation = document.querySelector(`.${DOM.nav}`);
-```
-Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it:
 
-``` js
-// we can't be sure that navigation element exists, so we need optional chaining
-navigation?.addEventListener("click", (e) => {
-  e.preventDefault();
-
-});
-```
-
-Here, we implement the event delegation pattern: we check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function and do nothing
-
-```js
+// we can't be sure that navigation element exists,
+// so we need optional chaining
 navigation?.addEventListener("click", (e) => {
   e.preventDefault();
 
   const currentTarget = e.target;
 
-  // we interested in a link we actually click
+  // we are interested in a link we actually click
   const currentLink = currentTarget.closest(`.${DOM.navLink}`);
   
   // all the magic will be here on link click
@@ -115,14 +128,9 @@ navigation?.addEventListener("click", (e) => {
 
 ## Get scrollTo target
 
-The purpose of the smoothScrollTo() function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function that will do this
-
-```js
-function getScrollTargetElem() {}
-```
+The purpose of the smoothScrollTo() function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem` that will do this.
 
 What should it do:
-
 * get the link we've clicked;
 * obtain the value of the href attribute, which can be the actual ID of the element we want to scroll to or can be an external link or simply a plain text;
 * verify if it's a valid value to grab the element by:
@@ -225,6 +233,7 @@ navigation?.addEventListener("click", (e) => {
   smoothScrollTo(scrollTargetElem);
 });
 ```
+
 ## smoothScrollTo() function and it's basic variables
 
 The actual function that performs all the magic is a function that smoothly scrolls to the target. We call it in the event handler after target definition, as it should know the point to which it should actually scroll
