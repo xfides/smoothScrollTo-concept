@@ -1,9 +1,5 @@
 import { DOM, DEFAULT_SCROLL_ANIMATION_TIME } from "./consts";
-import {
-  ISmoothScrollToProps,
-  IAnimateSingleScrollFrame,
-  IAnimateSingleScrollFrameProps,
-} from "./types";
+import { ISmoothScrollToProps, IAnimateSingleScrollFrame } from "./types";
 
 const navigation = document.querySelector(`.${DOM.nav}`);
 
@@ -20,12 +16,16 @@ navigation?.addEventListener("click", (e) => {
 
   const scrollTargetElem = getScrollTargetElem(currentLink);
 
-  smoothScrollTo({ scrollTargetElem });
+  smoothScrollTo({
+    scrollTargetElem,
+    onAnimationEnd: () => console.log("animation ends"),
+  });
 });
 
 export function smoothScrollTo({
   scrollTargetElem,
   scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd,
 }: ISmoothScrollToProps) {
   if (!scrollTargetElem) {
     return;
@@ -47,23 +47,18 @@ export function smoothScrollTo({
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
+    onAnimationEnd,
   };
 
-  animateSingleScrollFrame.animationFrameSettings = {
-    ...animationFrameSettings,
-  };
-
-  // requestAnimationFrame(boundFrameAnimation);
-  requestAnimationFrame(animateSingleScrollFrame);
+  requestAnimationFrame((currentTime) =>
+    animateSingleScrollFrame(animationFrameSettings, currentTime)
+  );
 }
 
-// найти target
 function getScrollTargetElem(clickedLinkElem: Element | null) {
   if (!clickedLinkElem) {
     return null;
   }
-
-  const a = 5;
 
   const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
 
@@ -83,17 +78,16 @@ function getScrollTargetElem(clickedLinkElem: Element | null) {
   return scrollTarget;
 }
 
-const animateSingleScrollFrame: IAnimateSingleScrollFrameProps = (
-  currentTime: number
-): void => {
-  const {
-    targetPositionY,
-    scrollStartPositionY,
-    scrollDuration,
+function animateSingleScrollFrame(
+  {
     startScrollTime,
-  } = animateSingleScrollFrame.animationFrameSettings;
-
-  // как это, блин, работает?? Почему currentTime меньше startTime??!!!
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    onAnimationEnd,
+  }: IAnimateSingleScrollFrame,
+  currentTime: number
+) {
   const elapsedTime = Math.max(currentTime - startScrollTime, 0);
 
   const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
@@ -116,21 +110,18 @@ const animateSingleScrollFrame: IAnimateSingleScrollFrameProps = (
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
+    onAnimationEnd,
   };
 
   if (elapsedTime < scrollDuration) {
-    requestAnimationFrame(animateSingleScrollFrame);
-  } else {
-    console.log("Scroll ends here");
+    // eslint-disable-next-line no-shadow
+    requestAnimationFrame((currentTime) =>
+      animateSingleScrollFrame(animationFrameSettings, currentTime)
+    );
+  } else if (onAnimationEnd) {
+    onAnimationEnd();
   }
-};
-
-animateSingleScrollFrame.animationFrameSettings = {
-  startScrollTime: 0,
-  targetPositionY: 0,
-  scrollStartPositionY: 0,
-  scrollDuration: 0,
-};
+}
 
 function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
   return easeInOutQuadProgress(animationProgress);

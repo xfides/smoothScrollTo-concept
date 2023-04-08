@@ -1,6 +1,9 @@
+type TCallback = (...args: any[]) => void;
+
 export interface ISmoothScrollToProps {
   scrollTargetElem: Element | null;
   scrollDuration?: number;
+  onAnimationEnd?: TCallback;
 }
 
 export interface IAnimateSingleScrollFrame {
@@ -8,9 +11,5 @@ export interface IAnimateSingleScrollFrame {
   scrollDuration: number;
   scrollStartPositionY: number;
   targetPositionY: number;
-}
-
-export interface IAnimateSingleScrollFrameProps {
-  (currentTime: number): void;
-  animationFrameSettings: IAnimateSingleScrollFrame;
+  onAnimationEnd?: TCallback;
 }
