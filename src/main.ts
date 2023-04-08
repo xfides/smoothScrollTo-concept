@@ -6,21 +6,42 @@ const navigation = document.querySelector(`.${DOM.nav}`);
 navigation?.addEventListener("click", (e) => {
   e.preventDefault();
 
-  const currentTarget = e.target;
-
-  if (!(currentTarget instanceof Element)) {
-    return;
-  }
-
-  const currentLink = currentTarget.closest(`.${DOM.navLink}`);
-
-  const scrollTargetElem = getScrollTargetElem(currentLink);
+  const scrollTargetElem = getScrollTargetElem(e.target);
 
   smoothScrollTo({
     scrollTargetElem,
     onAnimationEnd: () => console.log("animation ends"),
   });
 });
+
+function getScrollTargetElem(clickedElem: EventTarget | null) {
+  if (!(clickedElem instanceof Element)) {
+    return null;
+  }
+
+  const clickedLinkElem = clickedElem.closest(`.${DOM.navLink}`);
+
+  if (!clickedLinkElem) {
+    return null;
+  }
+
+  const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
+
+  if (!clickedLinkElemHref) {
+    return null;
+  }
+
+  let scrollTarget;
+
+  try {
+    scrollTarget = document.querySelector(clickedLinkElemHref);
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+
+  return scrollTarget;
+}
 
 export function smoothScrollTo({
   scrollTargetElem,
@@ -55,28 +76,7 @@ export function smoothScrollTo({
   );
 }
 
-function getScrollTargetElem(clickedLinkElem: Element | null) {
-  if (!clickedLinkElem) {
-    return null;
-  }
 
-  const clickedLinkElemHref = clickedLinkElem.getAttribute("href");
-
-  if (!clickedLinkElemHref) {
-    return null;
-  }
-
-  let scrollTarget;
-
-  try {
-    scrollTarget = document.querySelector(clickedLinkElemHref);
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
-
-  return scrollTarget;
-}
 
 function animateSingleScrollFrame(
   {
