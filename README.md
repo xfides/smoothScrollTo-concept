@@ -521,3 +521,13 @@ function animateSingleScrollFrame({
 In the video, you can see the difference in scroll length based on the dimension between `scrollStartPositionY` and `targetPositionY`:
 
 [Untitled_ Apr 6, 2023 8_58 PM.webm](https://user-images.githubusercontent.com/52240221/230458661-7885e840-09f2-49c5-8182-4ea6ee071e65.webm)
+
+## Separate Frames -> Animation
+
+We have a function that handles a single frame, but an animation is a sequence of frames, and we need to call this function repeatedly until `the scrollDuration` is finished and the time is up to complete the animation.
+
+The recursive `requestAnimationFrame()` will help us here. Fortunately, it's not as complicated as it might seem.
+
+### What is `requestAnimationFrame()`?
+
+`requestAnimationFrame()` (aka RAF) is a function that takes a callback with some animation as an argument, and then on each Event Loop tick, it nudges the browser to call this callback right before the repaint stage. 1 Event Loop tick -> 1 frame -> 1 `requestAnimationFrame()`. That's why we need to call it repeatedly until the animation is completed.
