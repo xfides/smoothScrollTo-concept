@@ -104,9 +104,9 @@ section:nth-of-type(2n) {
   
   Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it to discard immediate transition.
   
-  Then we need to calculate the element to which the scroll will be performed. The function `getScrollTargetElem` do it an is described [below](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll).
+  Then we need to calculate the element to which the scroll will be performed. The function `getScrollTargetElem` do it an is described [below](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll-table-of-contents).
   
-  In the end, the magic of smooth scrolling will happen. The function `smoothScrollTo` will be [responsible](#function-smoothscrollto-and-its-basic-variables) for this.
+  In the end, the magic of smooth scrolling will happen. The function `smoothScrollTo` will be [responsible](#function-smoothscrollto-and-its-basic-variables-table-of-contents) for this.
 
 ```js
 // I prefer to store all the DOM selector strings 
@@ -137,7 +137,7 @@ navigation?.addEventListener("click", (e) => {
 
 ## Function `getScrollTargetElem` get target to which it needs to scroll ([Table of Contents](#content))
 
-The purpose of the [`smoothScrollTo()`](#function-smoothscrollto-and-its-basic-variables) function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem` that will do this.
+The purpose of the [`smoothScrollTo()`](#function-smoothscrollto-and-its-basic-variables-table-of-contents) function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem` that will do this.
 
 What should `getScrollTargetElem` function do:
 * get the link we've clicked;
