@@ -9,7 +9,7 @@
   * [Get the clicked link](#get-the-clicked-link)
   * [Obtain and validate link `href` value](#obtain-and-validate-link-href-value)
 * [Function `smoothScrollTo` and it's basic variables](#function-smoothscrollto-and-its-basic-variables-table-of-contents)
-  * [Get actual user Y-coordinate](#get-actual-user-y-coordinate)
+  * [Get the user document scroll Y-coordinate](#get-the-user-document-scroll-y-coordinate)
 
 ## Main idea ([Table of Contents](#content))
 
@@ -266,20 +266,25 @@ function smoothScrollTo({
 }) {}
 ```
 
-### Get actual user Y-coordinate
+### Get the user document scroll Y-coordinate
 
-A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. The starting point is easy to obtain with `window.scrollY`:
+A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. 
+
+The starting point is easy to obtain with `window.scrollY`. It's returned value is a double-precision floating-point value. In our example, such high precision is not needed, therefore, to simplify the final value, we will round it through a `Math.round` function.
 
 ```js
 function smoothScrollTo({
   scrollTargetElem,
-  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd
 }) {
   if (!scrollTargetElem) {
     return;
   }
 
   const scrollStartPositionY = Math.round(window.scrollY);
+  
+  // ...
 }
 ```
 [Untitled_ Apr 5, 2023 4_03 PM.webm](https://user-images.githubusercontent.com/52240221/230088691-7c632ad0-5dac-484b-8308-bb43ec1a0a1b.webm)
