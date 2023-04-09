@@ -366,8 +366,18 @@ There are 2 options to get a 'now'-timestamp:
 
 Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. It's important to understand that the time used in the browser's internal scheduler is more important to animation than the number of scrolled pixels on the screen. Therefore, here we will not round the values, as in the case of pixels above. We should use this origin one to make the animation smooth and precise too.
 
+For convenience, we can collect all the necessary information for the future playback of our animation into a single animationFrameSettings object.
+
 ```js
   const startScrollTime = performance.now();
+
+  const animationFrameSettings = {
+    startScrollTime,
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    onAnimationEnd,
+  };
 ```
 
 ## Animation per frame function
