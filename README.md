@@ -12,20 +12,20 @@
   * [Get start scroll position](#get-start-scroll-position)
   * [Get end scroll position](#get-end-scroll-position)
 
-## Main idea ([Table of Contents](#content))
+## Main idea ([Table of Contents](#contents))
 
 I'm implementing my own vanilla JS alternative to the browser's `scroll-behavior: smooth` feature here. It's useful for cases when you need to combine this functionality with complex scroll JS behavior.
 
 You could check a [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QWZwOdb/5db409195086b5b1631055fbcb6c94e5)
 
-## Prerequisites ([Table of Contents](#content))
+## Prerequisites ([Table of Contents](#contents))
 
 For a good understanding of the article, the following are necessary:
 * basic layout: lists, positioning...
 * JavaScript: DOM, events, modules...
 * your good mood
 
-## Basic layout ([Table of Contents](#content))
+## Basic layout ([Table of Contents](#contents))
 
 ### HTML
 
@@ -99,7 +99,7 @@ section:nth-of-type(2n) {
 ```
 </details>
 
-## Adding event listener on the navigation ([Table of Contents](#content))
+## Adding event listener on the navigation ([Table of Contents](#contents))
 
   First, we need to grab the navigation element to add an event listener to it. We should not apply listeners directly to links in the navigation, as it's a bad practice (refer to the event delegation JS pattern). 
   
@@ -138,7 +138,7 @@ navigation?.addEventListener("click", (e) => {
 });
 ```
 
-## Function `getScrollTargetElem` get target to which it needs to scroll ([Table of Contents](#content))
+## Function `getScrollTargetElem` get target to which it needs to scroll ([Table of Contents](#contents))
 
 The purpose of the [`smoothScrollTo()`](#function-smoothscrollto-and-its-basic-variables-table-of-contents) function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem` that will do this.
 
@@ -230,7 +230,7 @@ function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
 }
 ```
 
-## Function `smoothScrollTo` and it's basic variables ([Table of Contents](#content))
+## Function `smoothScrollTo` and it's basic variables ([Table of Contents](#contents))
 
 The actual function that performs all the magic is a function that smoothly scrolls to the target. We call it in the [event handler](#adding-event-listener-on-the-navigation-table-of-contents) after target definition, as it should know the point to which it should actually scroll. 
 
