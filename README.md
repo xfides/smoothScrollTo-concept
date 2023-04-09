@@ -9,7 +9,8 @@
   * [Get the clicked link](#get-the-clicked-link)
   * [Obtain and validate link `href` value](#obtain-and-validate-link-href-value)
 * [Function `smoothScrollTo` and it's basic variables](#function-smoothscrollto-and-its-basic-variables-table-of-contents)
-  * [Get the user document scroll Y-coordinate](#get-the-user-document-scroll-y-coordinate)
+  * [Get start scroll position](#get-start-scroll-position)
+  * [Get end scroll position](#get-end-scroll-position)
 
 ## Main idea ([Table of Contents](#content))
 
@@ -266,11 +267,11 @@ function smoothScrollTo({
 }) {}
 ```
 
-### Get the user document scroll Y-coordinate
+### Get start scroll position
 
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. 
 
-The starting point is easy to obtain with `window.scrollY`. It's returned value is a double-precision floating-point value. In our example, such high precision is not needed, therefore, to simplify the final value, we will round it through a `Math.round` function.
+The starting point is easy to obtain with `window.scrollY`. It's returned value is a double-precision floating-point value. In our example, such high precision for pixels is not needed, therefore, to simplify the final value, we will round it through a `Math.round` function.
 
 ```js
 function smoothScrollTo({
@@ -289,39 +290,30 @@ function smoothScrollTo({
 ```
 [Untitled_ Apr 5, 2023 4_03 PM.webm](https://user-images.githubusercontent.com/52240221/230088691-7c632ad0-5dac-484b-8308-bb43ec1a0a1b.webm)
 
-### Get Y-coordinate of target element
+### Get end scroll position
 
-We know the starting point of scrolling, and we need one more point - the Y-coordinate of where to scroll. It's a bit more tricky: we have no methods to directly grab the absolute coordinate of the top-left corner of the target element. However, it's still possible, but we need two steps to obtain it.
+We know the starting point of scrolling, and we need one more point - the Y-coordinate of where to scroll. It's a bit more tricky: we have no methods to directly grab the absolute document coordinate of the top-left corner of the target element. However, it's still possible, but we need two steps to obtain it:
+* get the target element Y-coordinate relative to viewport
+* calculate document absolute Y-coordinate for the target element
 
-#### Get the target element Y-coordinate relative to viewport
-
-We need to grab the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
+First we need to grab the target element's Y-coordinate relative to the user's viewport. Our helper for this task is the `getBoundingClientRect()` method. Check this [img from MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
 
 <img width="459" alt="getBoundingClientRect schema" src="https://user-images.githubusercontent.com/52240221/230092703-4b91ad4f-2a24-4a99-bcca-3fa4c8490d38.png">
 
 ```js
-function smoothScrollTo({
-  scrollTargetElem,
-  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
-}) {
-  // ... previous stuff
-  
-  const scrollStartPositionY = Math.round(window.scrollY);
-  
   const targetPositionYRelativeToViewport = Math.round(
     scrollTargetElem.getBoundingClientRect().top
   );
-}
+
 ```
 
 <img width="832" alt="Снимок экрана 2023-04-06 001122" src="https://user-images.githubusercontent.com/52240221/230212586-7bb7369f-45f1-49b5-9fa6-9266729970a5.png">
 
-#### Calc absolute target element Y-coordinate
-
-The absolute target element Y-coordinate can be calc based on the start scroll position and the relative coordinate. The formula is:
+Secondly, the absolute target element Y-coordinate can be calc based on the start scroll position and the relative coordinate. The formula is:
 
 ```js
-targetPositionYRelativeToViewport + scrollStartPositionY;
+  const targetPositionY =
+    targetPositionYRelativeToViewport + scrollStartPositionY;
 ```
 
 Check the schemes below.
@@ -343,17 +335,23 @@ So now `smoothScrollTo()` function looks like that:
 ```js
 function smoothScrollTo({
   scrollTargetElem,
-  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd,
 }) {
-  // ... previous stuff
-  
+  if (!scrollTargetElem) {
+    return;
+  }
+
   const scrollStartPositionY = Math.round(window.scrollY);
-  
+
   const targetPositionYRelativeToViewport = Math.round(
     scrollTargetElem.getBoundingClientRect().top
   );
+
+  const targetPositionY =
+    targetPositionYRelativeToViewport + scrollStartPositionY;
   
-  const targetPositionY = targetPositionYRelativeToViewport + scrollStartPositionY;
+  // ...
 }
 ```
 
@@ -368,12 +366,6 @@ There are 2 options to get a 'now'-timestamp:
 Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. So we should use this one to make the animation smooth and precise too.
 
 ```js
-function smoothScrollTo({
-  scrollTargetElem,
-  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
-}) {
-  // ... previous stuff
-  
   const startScrollTime = performance.now();
 }
 ```
