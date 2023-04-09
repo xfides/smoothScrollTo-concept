@@ -5,13 +5,16 @@
 * [Prerequisites](#prerequisites-table-of-contents)
 * [Basic layout](#basic-layout-table-of-contents)
 * [Adding event listener on the navigation](#adding-event-listener-on-the-navigation-table-of-contents)
-* [Function `getScrollTargetElem` get target to which it needs to scroll](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll-table-of-contents)
+* [Function `getScrollTargetElem()` get target to which it needs to scroll](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll-table-of-contents)
   * [Get the clicked link](#get-the-clicked-link)
   * [Obtain and validate link `href` value](#obtain-and-validate-link-href-value)
-* [Function `smoothScrollTo` and it's basic variables](#function-smoothscrollto-and-its-basic-variables-table-of-contents)
+* [Function `smoothScrollTo()` and it's basic variables](#function-smoothscrollto-and-its-basic-variables-table-of-contents)
   * [Get the scroll start position](#get-the-scroll-start-position)
   * [Get the scroll end position](#get-the-scroll-end-position)
   * [Get the scroll start timestamp](#get-the-scroll-start-timestamp)
+  * [Define animation per frame function](#define-animation-per-frame-function)
+* [Function `animateSingleScrollFrame()` gives the progress of the animation](#function-animatesinglescrollframe-gives-the-progress-of-the-animation-table-of-contents)
+  
 
 ## Main idea ([Table of Contents](#contents))
 
@@ -106,9 +109,9 @@ section:nth-of-type(2n) {
   
   Next, we add an event listener to the navigation and prevent the default behavior of clicked link targets within it to discard immediate transition.
   
-  Then we need to calculate the element to which the scroll will be performed. The function `getScrollTargetElem` do it as is described [below](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll-table-of-contents).
+  Then we need to calculate the element to which the scroll will be performed. The function `getScrollTargetElem()` do it as is described [below](#function-getscrolltargetelem-get-target-to-which-it-needs-to-scroll-table-of-contents).
   
-  In the end, the magic of smooth scrolling will happen. The function `smoothScrollTo` will be [responsible](#function-smoothscrollto-and-its-basic-variables-table-of-contents) for this.
+  In the end, the magic of smooth scrolling will happen. The function `smoothScrollTo()` will be [responsible](#function-smoothscrollto-and-its-basic-variables-table-of-contents) for this.
 
 ```js
 // I prefer to store all the DOM selector strings 
@@ -139,11 +142,11 @@ navigation?.addEventListener("click", (e) => {
 });
 ```
 
-## Function `getScrollTargetElem` get target to which it needs to scroll ([Table of Contents](#contents))
+## Function `getScrollTargetElem()` get target to which it needs to scroll ([Table of Contents](#contents))
 
-The purpose of the [`smoothScrollTo()`](#function-smoothscrollto-and-its-basic-variables-table-of-contents) function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem` that will do this.
+The purpose of the [`smoothScrollTo()`](#function-smoothscrollto-and-its-basic-variables-table-of-contents) function is to scroll to a specific element on the page. Therefore, we need to determine the target of our scroll somehow. Let's create a function `getScrollTargetElem()` that will do this.
 
-What should `getScrollTargetElem` function do:
+What should `getScrollTargetElem()` function do:
 * get the link we've clicked
 * obtain the value of the href attribute, which can be the actual ID of the element we want to scroll to or can be an external link or simply a plain text
 * verify if it's a valid value to grab the element by:
@@ -152,7 +155,7 @@ What should `getScrollTargetElem` function do:
 
 ### Get the clicked link
 
-We captured some element on the page we've clicked here. We implement the event delegation pattern. Check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function. Note that after this and the following unsuccessful checks, we will return `null` as a signal that the `getScrollTargetElem` function failed to find the target to which the scroll should be performed.
+We captured some element on the page we've clicked here. We implement the event delegation pattern. Check if the element is a navigation link or if it is a descendant of one. If it's not, we exit the function. Note that after this and the following unsuccessful checks, we will return `null` as a signal that the `getScrollTargetElem()` function failed to find the target to which the scroll should be performed.
 
 We can't truly guarantee that JavaScript will 100% find this element in the DOM. That's why `clickedLinkElem` can be either `Element` or `null`.
 
@@ -198,7 +201,7 @@ There are 2 ways:
 * implement some kind of RegEx to check if the value is valid
 * we can use a `try/catch`-block to handle the thrown `Error` case if the value is invalid
 
-I've preferred the 2nd way, it's simplier than any RegEx solution. So the full code of `getScrollTargetElem` looks like that.
+I've preferred the 2nd way, it's simplier than any RegEx solution. So the full code of `getScrollTargetElem()` looks like that.
 
 ```js
 function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
@@ -231,11 +234,11 @@ function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
 }
 ```
 
-## Function `smoothScrollTo` and it's basic variables ([Table of Contents](#contents))
+## Function `smoothScrollTo()` and it's basic variables ([Table of Contents](#contents))
 
 The actual function that performs all the magic is a function that smoothly scrolls to the target. We call it in the [event handler](#adding-event-listener-on-the-navigation-table-of-contents) after target definition, as it should know the point to which it should actually scroll. 
 
-The crucial thing we need to know is how long our animation should last. In our case, the user should be able to set it directly as a ` smoothScrollTo` parameter. Additionally, we will define a default value in case the user doesn't want to set any.
+The crucial thing we need to know is how long our animation should last. In our case, the user should be able to set it directly as a ` smoothScrollTo()` parameter. Additionally, we will define a default value in case the user doesn't want to set any.
 
 Don't forget about the callback to be called after the animation ends. So let's take a look at what the code looks like at this stage.
 
@@ -272,7 +275,7 @@ function smoothScrollTo({
 
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. 
 
-The starting point is easy to obtain with `window.scrollY`. It's returned value is a double-precision floating-point value. In our example, such high precision for pixels is not needed, therefore, to simplify the final value, we will round it through a `Math.round` function.
+The starting point is easy to obtain with `window.scrollY`. It's returned value is a double-precision floating-point value. In our example, such high precision for pixels is not needed, therefore, to simplify the final value, we will round it through a `Math.round()` function.
 
 ```js
 function smoothScrollTo({
@@ -380,7 +383,7 @@ For convenience, we can collect all the necessary information for the future pla
   };
 ```
 
-## Animation per frame function
+### Define animation per frame function
 
 Essentially, each animation is an event that occurs over a duration, and we can break down this time-based event into separate frames. Something like this
 
@@ -388,27 +391,44 @@ Essentially, each animation is an event that occurs over a duration, and we can 
 
 So, we need a function that handles single frame motion, and based on it, we will build the entire animation
 
-Let's define it, call it in the `smoothScrollTo()` as a draft, and pass `startScrollTime` and `scrollDuration` to it:
+Let's define it as `animateSingleScrollFrame()` somewhere outside. We call it inside the `smoothScrollTo()` as a draft, and pass `animationFrameSettings` for further calculations to `animateSingleScrollFrame()`. Almost complete `smoothScrollTo()` code is here. Why almost? Because the computer should call `animateSingleScrollFrame()` when drawing the frame, and not the programmer himself. We will definitely fix this point a little later.
 
 ```js
 function smoothScrollTo({
   scrollTargetElem,
-  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME
+  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd,
 }) {
-  // ... previous stuff
-  
+  if (!scrollTargetElem) {
+    return;
+  }
+
+  const scrollStartPositionY = Math.round(window.scrollY);
+
+  const targetPositionYRelativeToViewport = Math.round(
+    scrollTargetElem.getBoundingClientRect().top
+  );
+
+  const targetPositionY =
+    targetPositionYRelativeToViewport + scrollStartPositionY;
+
   const startScrollTime = performance.now();
-  
-  animateSingleScrollFrame({
+
+  const animationFrameSettings = {
     startScrollTime,
-    scrollDuration
-  })
+    scrollDuration,
+    scrollStartPositionY,
+    targetPositionY,
+    onAnimationEnd,
+  };
+
+  animateSingleScrollFrame(animationFrameSettings)  
 }
 
-function animateSingleScrollFrame({startScrollTime, scrollDuration }) {}
+function animateSingleScrollFrame(animationFrameSettings) {}
 ```
 
-### Current Time Mock
+## Function `animateSingleScrollFrame()` gives the progress of the animation ([Table of Contents](#contents))
 
 For each frame, we want to check how much time has already been spent on the animation. We have a `startScrollTime` value and now need to know the current time to calculate the elapsed time
 
