@@ -9,8 +9,9 @@
   * [Get the clicked link](#get-the-clicked-link)
   * [Obtain and validate link `href` value](#obtain-and-validate-link-href-value)
 * [Function `smoothScrollTo` and it's basic variables](#function-smoothscrollto-and-its-basic-variables-table-of-contents)
-  * [Get start scroll position](#get-start-scroll-position)
-  * [Get end scroll position](#get-end-scroll-position)
+  * [Get the scroll start position](#get-the-scroll-start-position)
+  * [Get the scroll end position](#get-the-scroll-end-position)
+  * [Get the scroll start timestamp](#get-the-scroll-start-timestamp)
 
 ## Main idea ([Table of Contents](#contents))
 
@@ -267,7 +268,7 @@ function smoothScrollTo({
 }) {}
 ```
 
-### Get start scroll position
+### Get the scroll start position
 
 A crucial part of each custom scrolling is detecting the starting point. We can perform further calculations based on the coordinates of our current position on the page. In our case (vertical scrolling), we're interested in Y-coordinates only. 
 
@@ -290,7 +291,7 @@ function smoothScrollTo({
 ```
 [Untitled_ Apr 5, 2023 4_03 PM.webm](https://user-images.githubusercontent.com/52240221/230088691-7c632ad0-5dac-484b-8308-bb43ec1a0a1b.webm)
 
-### Get end scroll position
+### Get the scroll end position
 
 We know the starting point of scrolling, and we need one more point - the Y-coordinate of where to scroll. It's a bit more tricky: we have no methods to directly grab the absolute document coordinate of the top-left corner of the target element. However, it's still possible, but we need two steps to obtain it:
 * get the target element Y-coordinate relative to viewport
@@ -357,17 +358,16 @@ function smoothScrollTo({
 
 ### Get the scroll start timestamp
 
-We need this value for animation settings which would be discussed later. 
+We calculated the start and end position of the scroll. However, this is not enough to implement our plan. Animation is a change of some parameter in time. Therefore, we also need to get the start time of the animation, relative to which `scrollDuration` will tick.
 
 There are 2 options to get a 'now'-timestamp:
 * `Date.now()`
 * `performance.now()`
 
-Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. So we should use this one to make the animation smooth and precise too.
+Both of them return a timestamp, but `performance.now()` is a highly-resolution one, much more precise. It's important to understand that the time used in the browser's internal scheduler is more important to animation than the number of scrolled pixels on the screen. Therefore, here we will not round the values, as in the case of pixels above. We should use this origin one to make the animation smooth and precise too.
 
 ```js
   const startScrollTime = performance.now();
-}
 ```
 
 ## Animation per frame function
