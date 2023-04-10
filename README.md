@@ -167,8 +167,7 @@ We captured some element on the page we've clicked here. We implement the event 
 We can't truly guarantee that JavaScript will 100% find this element in the DOM. That's why `clickedLinkElem` can be either `Element` or `null`.
 
 ```js
-function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
-  
+function getScrollTargetElem(clickedTargetElem) {
   // did you know that event.target may not be a DOM Element?
   if (!(clickedTargetElem instanceof Element)) {
     return null;
@@ -182,6 +181,7 @@ function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
   }
   
   // ...
+
 }
 ```
 
@@ -211,7 +211,7 @@ There are 2 ways:
 I've preferred the 2nd way, it's simplier than any RegEx solution. So the full code of `getScrollTargetElem()` looks like that.
 
 ```js
-function getScrollTargetElem(clickedTargetElem: EventTarget | null) {
+function getScrollTargetElem(clickedTargetElem) {
   if (!(clickedTargetElem instanceof Element)) {
     return null;
   }
@@ -297,6 +297,7 @@ function smoothScrollTo({
   const scrollStartPositionY = Math.round(window.scrollY);
   
   // ...
+
 }
 ```
 [Untitled_ Apr 5, 2023 4_03 PM.webm](https://user-images.githubusercontent.com/52240221/230088691-7c632ad0-5dac-484b-8308-bb43ec1a0a1b.webm)
@@ -363,6 +364,7 @@ function smoothScrollTo({
     targetPositionYRelativeToViewport + scrollStartPositionY;
   
   // ...
+
 }
 ```
 
@@ -450,8 +452,13 @@ Technically, we would obtain a `currentTime` timestamp from `requestAnimationFra
 The elapsed time will be used to calculate the animation progress. When we implement `requestAnimationFrame()`, `currentTime` (and therefore, `elapsedTime`) will be updated on each Event Loop tick.
 
 ```js
-function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
-
+function animateSingleScrollFrame({
+  startScrollTime,
+  scrollDuration,
+  scrollStartPositionY,
+  targetPositionY,
+  onAnimationEnd 
+}) {
   // The '100' here is a magic number, used for mock purposes only, 
   // and will be removed upon the implementation of requestAnimationFrame()
   const currentTime = performance.now() + 100;
@@ -460,6 +467,7 @@ function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
   const elapsedTime = currentTime - startScrollTime;
   
   // ...
+
 }
 ```
 
@@ -480,7 +488,7 @@ Now we have a linear animation progress. However, we often prefer non-linear ani
 You can explore the most popular animation easing types based on Bezier Curves at [easings.net](https://easings.net/#). I've chosen the [easeInOutQuad](https://easings.net/#easeInOutQuad) mode for this project. On this page, you can find a function that calculates this easing effect:
 
 ```js
-function easeInOutQuadProgress(animationProgress: number) {
+function easeInOutQuadProgress(animationProgress) {
   return animationProgress < 0.5
     ? 2 * animationProgress * animationProgress
     : -1 + (4 - 2 * animationProgress) * animationProgress;
@@ -494,7 +502,7 @@ If our animation progress is less than `50%`, it will increase this progress, so
 Let's create a wrapper function that takes `animationProgress` as a parameter and returns normalized progress from `easeInOutQuadProgress()`. I'm adding this extra function because later, we may want to handle more than just a single easing mode
 
 ```js 
-function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
+function normalizeAnimationProgressByBezierCurve(animationProgress) {
   return easeInOutQuadProgress(animationProgress);
 }
 ```
@@ -514,7 +522,7 @@ function animateSingleScrollFrame({
     scrollStartPositionY,
     targetPositionY,
     onAnimationEnd
-  }) {
+}) {
 
   // ...
 
@@ -555,16 +563,19 @@ Alright, the purpose of the `animateSingleScrollFrame()` function is to actually
 Now it's time to scroll the page! Although it's not smooth at the moment, it works!
 
 ```js
-function animateSingleScrollFrame(
-  {
+function animateSingleScrollFrame({
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
     onAnimationEnd
-  }
-) {
-  const elapsedTime = Math.max(currentTime - startScrollTime, 0);
+}) {
+  // The '100' here is a magic number, used for mock purposes only, 
+  // and will be removed upon the implementation of requestAnimationFrame()
+  const currentTime = performance.now() + 100;
+    
+  // It's currently equal to 100ms due to the mock value
+  const elapsedTime = currentTime - startScrollTime;
 
   const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
 
@@ -598,8 +609,8 @@ The recursive `requestAnimationFrame()` will help us here. Fortunately, it's not
 ### Use `requestAnimationFrame()` to start the browser animation
 
 Each recursion is based on 2 main points:
-* a place for the first function call;
-* a condition, in which if it is `true` we call the function again and again, and if it is `false` we stop the recursive function calls;
+* a place for the first function call
+* a condition, in which if it is `true` we call the function again and again, and if it is `false` we stop the recursive function calls
 
 The first function call will be inside the `smoothScrollTo()` function as a starting animation point.
 
@@ -622,47 +633,39 @@ function smoothScrollTo({
 ⚠️ By design, `requestAnimationFrame()` passes a `currentTime` timestamp as an argument to the callback. Do you remember when we mocked the `currentTime` earlier? We can't simply call RAF like this:
 
 ```js
-requestAnimationFrame(animateSingleScrollFrame) 
+  requestAnimationFrame(animateSingleScrollFrame) 
 ```
 
-... because the `animateSingleScrollFrame()` function should accept not only the currentTime argument, but also an object with the animation settings we've passed in it earlier.
-
-We need to use an arrow function here:
+... because the `animateSingleScrollFrame()` function should accept not only the currentTime argument, but also an object with the animation settings we've passed in it earlier.We can use an arrow function to deal with the obstacle.
 
 ```js
 function smoothScrollTo({
   scrollTargetElem,
   scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd
 }) {
-  // ... previous stuff
 
-  // all the things we've passed into `animateSingleScrollFrame` earlier
+  // ...
+
+  // all the things we've passed 
+  // into `animateSingleScrollFrame` earlier
   const animationFrameSettings = {
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
-    targetPositionY
+    targetPositionY,
+    onAnimationEnd
   };
   
-  // an actual RAF call
+  // an actual RAF call for continuous animation
   requestAnimationFrame((currentTime) =>
     animateSingleScrollFrame(animationFrameSettings, currentTime)
   );
 }
-```
 
-```js
 function animateSingleScrollFrame(
-  {
-    startScrollTime,
-    scrollDuration,
-    scrollStartPositionY,
-    targetPositionY,
-  },
-  currentTime: number
-) {
-  // ... a function inner content
-}
+  animationFrameSettings, currentTime
+) { /* ... */ }
 ```
 
 ### Finish creating animation with recursive `requestAnimationFrame()`
@@ -675,18 +678,26 @@ function animateSingleScrollFrame(
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
-    targetPositionY
+    targetPositionY,
+    onAnimationEnd
   },
-  currentTime: number
+  currentTime
 ) {
- 
-  // ... previuos stuff
 
+  // here, we remove the currentTime mocks and apply a 
+  // Math.max to support the case when elapsedTime < 0
+  const elapsedTime = Math.max(currentTime - startScrollTime, 0);
+
+  // ...
+
+  // yes, `animationFrameSettings` are the same as 
+  // in the `animateSingleScrollFrame()` parameters
   const animationFrameSettings = {
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
+    onAnimationEnd
   };
 
   if (elapsedTime < scrollDuration) {
@@ -697,26 +708,7 @@ function animateSingleScrollFrame(
 }
 ```
 
-Now we have a working recursion and an actual `currentTime` we have received from RAF. There could be a case when, on the first RAF call, `currentTime` is somehow smaller than `startScrollTime`. We should support this case and, if `elapsedTime < 0`, we return `0` there
-
-```js
-function animateSingleScrollFrame(
-  {
-    startScrollTime,
-    scrollDuration,
-    scrollStartPositionY,
-    targetPositionY,
-  },
-  currentTime: number
-) {
-  
-  // here, we remove the currentTime mocks and apply a Math.max to support the case when elapsedTime < 0
-  const elapsedTime = Math.max(currentTime - startScrollTime, 0);
-  
-  // ... next stuff
-  
-}
-```
+Now we have a working recursion and an actual `currentTime` we have received from RAF. There could be a case when, on the first RAF call, `currentTime` is somehow smaller than `startScrollTime`. We should support this case and, if `elapsedTime < 0`, we return `0` there.
 
 🎉 It animates now!
 
