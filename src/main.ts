@@ -76,8 +76,6 @@ export function smoothScrollTo({
   );
 }
 
-
-
 function animateSingleScrollFrame(
   {
     startScrollTime,
