@@ -17,9 +17,9 @@
   * [Calculate animation progress](#calculate-animation-progress)
   * [Calculate scroll length per frame](#calculate-scroll-length-per-frame)
   * [Let's scroll to the new Y-coordinate position!](#lets-scroll-to-the-new-y-coordinate-position)
-* [Separate Frames -> Animation](#separate-frames-animation-table-of-contents)
+* [Separate Frames -> Animation](#separate-frames---animation-table-of-contents)
   * [Use `requestAnimationFrame()` to start the browser animation](#use-requestanimationframe-to-start-the-browser-animation)
-  * [⚠️ A Pitfall with `requestAnimationFrame()` and recursion](#⚠️-a-pitfall-with-requestanimationframe-and-recursion)
+  * [️A Pitfall with `requestAnimationFrame()` and recursion](#⚠-a-pitfall-with-requestanimationframe-and-recursion-)
   * [Finish creating animation with recursive `requestAnimationFrame()`](#finish-creating-animation-with-recursive-requestanimationframe) 
   
 
@@ -617,7 +617,7 @@ function smoothScrollTo({
 }
 ```
 
-### ⚠️ A Pitfall with `requestAnimationFrame()` and recursion
+### ⚠️ A Pitfall with `requestAnimationFrame()` and recursion 
 
 By design, `requestAnimationFrame()` passes a `currentTime` timestamp as an argument to the callback. Do you remember when we mocked the `currentTime` earlier? We can't simply call RAF like this:
 
