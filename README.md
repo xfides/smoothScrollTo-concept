@@ -21,8 +21,9 @@
   * [Use `requestAnimationFrame()` to start the browser animation](#use-requestanimationframe-to-start-the-browser-animation)
   * [️⚠️ A Pitfall with `requestAnimationFrame()` and recursion](#a-pitfall-with-requestanimationframe-and-recursion)
   * [Finish creating animation with recursive `requestAnimationFrame()`](#finish-creating-animation-with-recursive-requestanimationframe) 
+* [The last thing: a callback on animation end](#the-last-thing:-a-callback-on-animation-end)   
+* [A final word](#a-final-word-table-of-contents)
   
-
 ## Main idea ([Table of Contents](#contents))
 
 I'm implementing my own vanilla JS alternative to the browser's `scroll-behavior: smooth` feature here. It's useful for cases when you need to combine this functionality with complex scroll JS behavior.
@@ -647,8 +648,7 @@ function smoothScrollTo({
 
   // ...
 
-  // all the things we've passed 
-  // into `animateSingleScrollFrame` earlier
+  // all animation info we pass into `animateSingleScrollFrame()`
   const animationFrameSettings = {
     startScrollTime,
     scrollDuration,
@@ -708,13 +708,13 @@ function animateSingleScrollFrame(
 }
 ```
 
-Now we have a working recursion and an actual `currentTime` we have received from RAF. There could be a case when, on the first RAF call, `currentTime` is somehow smaller than `startScrollTime`. We should support this case and, if `elapsedTime < 0`, we return `0` there.
+Did you notice how we replaced the mock value with the current frame time? Now we have a working recursion and an actual `currentTime` we have received from RAF. There could be a case when, on the first RAF call, `currentTime` is somehow smaller than `startScrollTime`. We should support this case and, if `elapsedTime < 0`, we return `0` there.
 
-🎉 It animates now!
+🎉 It animates now! My congratulations to you!
 
 [Untitled_ Apr 8, 2023 2_34 PM.webm](https://user-images.githubusercontent.com/52240221/230718929-876dd79e-8d6d-446b-80ee-bddb1ef22870.webm)
 
-## The last thing: a callback on animation end
+## The last thing: a callback on animation end ([Table of Contents](#contents))
 
 It's not a critical feature, just a nice small cherry on the cake. Let's add a callback that will be executed when the animation is fully completed.
 
@@ -722,7 +722,8 @@ We will pass it in the `smoothScrollTo()` function, as it is our entry point. Le
 
 ```js
 navigation?.addEventListener("click", (e) => {
-  // ... previous stuff
+
+  // ...
 
   smoothScrollTo({
     scrollTargetElem,
@@ -740,34 +741,36 @@ function smoothScrollTo({
   scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
   onAnimationEnd
 }) {
-  // ... previous stuff
+
+  // ... 
 
   const animationFrameSettings = {
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-    // add it as a new setting to the settings object
+    // we use on animation end callback as the last animation setting 
     onAnimationEnd
   };
   
-  // ... next stuff
+  requestAnimationFrame((currentTime) =>
+    animateSingleScrollFrame(animationFrameSettings, currentTime)
+  );
 }
-```
 
-```js
 function animateSingleScrollFrame(
   {
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-    // we get it here as a setting
+    // we get on animation end callback here as a setting
     onAnimationEnd
-  }: IAnimateSingleScrollFrame,
+  },
   currentTime: number
 ) {
-  // ... previous stuff
+
+  // ... 
 
   const animationFrameSettings = {
     startScrollTime,
@@ -782,7 +785,9 @@ function animateSingleScrollFrame(
     requestAnimationFrame((currentTime) =>
       animateSingleScrollFrame(animationFrameSettings, currentTime)
     );
-  // check if a callback is passed to the function
+
+  // check if a callback is passed to 
+  // the `animateSingleScrollFrame` function
   } else if (onAnimationEnd) {
     onAnimationEnd();
   }
@@ -791,9 +796,11 @@ function animateSingleScrollFrame(
 
 [Untitled_ Apr 8, 2023 2_56 PM.webm](https://user-images.githubusercontent.com/52240221/230719801-3186ccbf-8623-445b-837b-a1588bf487dc.webm)
 
-## A final word
+## A final word ([Table of Contents](#contents))
 
 We've built a fully complete Smooth Scroll concept. You can use it in your projects as is, or extend it with additional easing animations, end-of-animation callbacks, or other features! Feel free to use the code however you like!
+
+Let me remind you that you can watch the demo at the link [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QWZwOdb/5db409195086b5b1631055fbcb6c94e5)
 
 I would be really glad to receive your feedback!
 
