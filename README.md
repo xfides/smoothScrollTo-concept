@@ -17,6 +17,10 @@
   * [Calculate animation progress](#calculate-animation-progress)
   * [Calculate scroll length per frame](#calculate-scroll-length-per-frame)
   * [Let's scroll to the new Y-coordinate position!](#lets-scroll-to-the-new-y-coordinate-position)
+* [Separate Frames -> Animation](#separate-frames-animation-table-of-contents)
+  * [Use `requestAnimationFrame()` to start the browser animation](#use-requestanimationframe-to-start-the-browser-animation)
+  * [⚠️ A Pitfall with `requestAnimationFrame()` and recursion](#⚠️-a-pitfall-with-requestanimationframe-and-recursion)
+  * [Finish creating animation with recursive `requestAnimationFrame()`](#finish-creating-animation-with-recursive-requestanimationframe) 
   
 
 ## Main idea ([Table of Contents](#contents))
@@ -343,7 +347,7 @@ So now `smoothScrollTo()` function looks like that:
 function smoothScrollTo({
   scrollTargetElem,
   scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
-  onAnimationEnd,
+  onAnimationEnd
 }) {
   if (!scrollTargetElem) {
     return;
@@ -382,7 +386,7 @@ For convenience, we can collect all the necessary information for the future pla
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-    onAnimationEnd,
+    onAnimationEnd
   };
 ```
 
@@ -400,7 +404,7 @@ Let's define it as `animateSingleScrollFrame()` somewhere outside. We call it in
 function smoothScrollTo({
   scrollTargetElem,
   scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
-  onAnimationEnd,
+  onAnimationEnd
 }) {
   if (!scrollTargetElem) {
     return;
@@ -422,7 +426,7 @@ function smoothScrollTo({
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-    onAnimationEnd,
+    onAnimationEnd
   };
 
   animateSingleScrollFrame(animationFrameSettings)  
@@ -557,7 +561,7 @@ function animateSingleScrollFrame(
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-    onAnimationEnd,
+    onAnimationEnd
   }
 ) {
   const elapsedTime = Math.max(currentTime - startScrollTime, 0);
@@ -583,23 +587,19 @@ In the video, you can see the difference in scroll length based on the dimension
 
 [Untitled_ Apr 6, 2023 8_58 PM.webm](https://user-images.githubusercontent.com/52240221/230458661-7885e840-09f2-49c5-8182-4ea6ee071e65.webm)
 
-## Separate Frames -> Animation
+## Separate Frames -> Animation ([Table of Contents](#contents))
 
-We have a function that handles a single frame, but an animation is a sequence of frames, and we need to call this function repeatedly until `the scrollDuration` is finished and the time is up to complete the animation.
+We have a function that handles a single frame, but an animation is a sequence of frames, and we need to call this function repeatedly until the `scrollDuration` is finished, and the time is up to complete the animation.
 
 The recursive `requestAnimationFrame()` will help us here. Fortunately, it's not as complicated as it might seem.
 
-### What is `requestAnimationFrame()`?
-
 `requestAnimationFrame()` (aka RAF) is a function that takes a callback with some animation as an argument, and then on each Event Loop tick, it nudges the browser to call this callback right before the repaint stage. 1 Event Loop tick -> 1 frame -> 1 `requestAnimationFrame()`. That's why we need to call it repeatedly until the animation is completed.
 
-### Add a recursion into our code
+### Use `requestAnimationFrame()` to start the browser animation
 
 Each recursion is based on 2 main points:
 * a place for the first function call;
 * a condition, in which if it is `true` we call the function again and again, and if it is `false` we stop the recursive function calls;
-
-#### A place for the first function call
 
 The first function call will be inside the `smoothScrollTo()` function as a starting animation point.
 
@@ -607,15 +607,17 @@ The first function call will be inside the `smoothScrollTo()` function as a star
 function smoothScrollTo({
   scrollTargetElem,
   scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
+  onAnimationEnd
 }) {
-  // ... previous stuff
+  // ... 
 
-  // This is how we want to initially call RAF and pass an animation function as a callback
+  // This is how we want to initially call RAF and 
+  // pass an animation function as a callback
   requestAnimationFrame(animateSingleScrollFrame)
 }
 ```
 
-#### ⚠️ A Pitfall
+### ⚠️ A Pitfall with `requestAnimationFrame()` and recursion
 
 By design, `requestAnimationFrame()` passes a `currentTime` timestamp as an argument to the callback. Do you remember when we mocked the `currentTime` earlier? We can't simply call RAF like this:
 
@@ -662,7 +664,8 @@ function animateSingleScrollFrame(
   // ... a function inner content
 }
 ```
-#### Add a recursion repeating condition
+
+### Finish creating animation with recursive `requestAnimationFrame()`
 
 This is a pretty straightforward thing. If our duration time is greater than the elapsed time, we have time for a new animation frame, so we should continue the recursive RAF:
 
@@ -694,8 +697,6 @@ function animateSingleScrollFrame(
 }
 ```
 
-### Remove `currentTime` mocks
-
 Now we have a working recursion and an actual `currentTime` we have received from RAF. There could be a case when, on the first RAF call, `currentTime` is somehow smaller than `startScrollTime`. We should support this case and, if `elapsedTime < 0`, we return `0` there
 
 ```js
@@ -717,7 +718,7 @@ function animateSingleScrollFrame(
 }
 ```
 
-## 🎉 It animates now!
+🎉 It animates now!
 
 [Untitled_ Apr 8, 2023 2_34 PM.webm](https://user-images.githubusercontent.com/52240221/230718929-876dd79e-8d6d-446b-80ee-bddb1ef22870.webm)
 
@@ -770,7 +771,7 @@ function animateSingleScrollFrame(
     scrollStartPositionY,
     targetPositionY,
     // we get it here as a setting
-    onAnimationEnd,
+    onAnimationEnd
   }: IAnimateSingleScrollFrame,
   currentTime: number
 ) {
@@ -782,7 +783,7 @@ function animateSingleScrollFrame(
     scrollStartPositionY,
     targetPositionY,
     // add it as a new setting to the settings object
-    onAnimationEnd,
+    onAnimationEnd
   };
 
   if (elapsedTime < scrollDuration) {
