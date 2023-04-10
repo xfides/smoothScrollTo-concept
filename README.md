@@ -21,7 +21,7 @@
   * [Use `requestAnimationFrame()` to start the browser animation](#use-requestanimationframe-to-start-the-browser-animation)
   * [️⚠️ A Pitfall with `requestAnimationFrame()` and recursion](#a-pitfall-with-requestanimationframe-and-recursion)
   * [Finish creating animation with recursive `requestAnimationFrame()`](#finish-creating-animation-with-recursive-requestanimationframe) 
-* [The last thing: a callback on animation end](#the-last-thing:-a-callback-on-animation-end)   
+* [The last thing: a callback on animation end](#the-last-thing-a-callback-on-animation-end-table-of-contents)   
 * [A final word](#a-final-word-table-of-contents)
   
 ## Main idea ([Table of Contents](#contents))
@@ -767,7 +767,7 @@ function animateSingleScrollFrame(
     // we get on animation end callback here as a setting
     onAnimationEnd
   },
-  currentTime: number
+  currentTime
 ) {
 
   // ... 
@@ -777,7 +777,7 @@ function animateSingleScrollFrame(
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-    // add it as a new setting to the settings object
+    // don't forget to save the on animation end callback link 
     onAnimationEnd
   };
 
@@ -786,8 +786,8 @@ function animateSingleScrollFrame(
       animateSingleScrollFrame(animationFrameSettings, currentTime)
     );
 
-  // check if a callback is passed to 
-  // the `animateSingleScrollFrame` function
+  // check if a on animation end callback is passed  
+  // to the `animateSingleScrollFrame` function
   } else if (onAnimationEnd) {
     onAnimationEnd();
   }
@@ -800,7 +800,7 @@ function animateSingleScrollFrame(
 
 We've built a fully complete Smooth Scroll concept. You can use it in your projects as is, or extend it with additional easing animations, end-of-animation callbacks, or other features! Feel free to use the code however you like!
 
-Let me remind you that you can watch the demo at the link [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QWZwOdb/5db409195086b5b1631055fbcb6c94e5)
+Let me remind you that you can watch [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QWZwOdb/5db409195086b5b1631055fbcb6c94e5)
 
 I would be really glad to receive your feedback!
 
