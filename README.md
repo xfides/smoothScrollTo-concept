@@ -14,8 +14,10 @@
   * [Get the scroll start timestamp](#get-the-scroll-start-timestamp)
   * [Define animation per frame function](#define-animation-per-frame-function)
 * [Function `animateSingleScrollFrame()` gives the progress of the animation](#function-animatesinglescrollframe-gives-the-progress-of-the-animation-table-of-contents)
-  * [Animation Progress](#animation-progress)
-  * [Scroll length per frame](#scroll-length-per-frame)
+  * [Calculate animation progress](#calculate-animation-progress)
+  * [Calculate scroll length per frame](#calculate-scroll-length-per-frame)
+  * [Let's scroll to the new Y-coordinate position!](#lets-scroll-to-the-new-y-coordinate-position!)
+  
 
 ## Main idea ([Table of Contents](#contents))
 
@@ -457,7 +459,7 @@ function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
 }
 ```
 
-### Animation Progress
+### Calculate animation progress
 
 The animation progress, which we calculate with the help of `elapsedTime`, shows how much of the animation is completed. We need an absolute progress ranging from 0 (beginning of the animation) to 1 (end of animation). This will help us calculate the scroll length in pixels per current frame later on
 
@@ -493,42 +495,13 @@ function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
 }
 ```
 
-## Scroll length per frame
+### Calculate scroll length per frame
 
 The next step is to calculate how many pixels we should scroll during this animation frame, based on normalized animation progress and two coordinates: start position and target position. 
 
-We've already calculated the start position and target position in the `smoothScrollTo()` function, so now we should pass them to the `animateSingleScrollFrame()` function:
+We've already calculated the start position and target position in the [`smoothScrollTo()`](#function-smoothscrollto-and-its-basic-variables-table-of-contents) function. We even collected all the necessary information for animation in a [single object](#get-the-scroll-start-timestamp) `animationFrameSettings`, which we pass to the `animateSingleScrollFrame()` function. Let's use this information.
 
-```js
-function smoothScrollTo({
-  scrollTargetElem,
-  scrollDuration = DEFAULT_SCROLL_ANIMATION_TIME,
-}) {
-  if (!scrollTargetElem) {
-    return;
-  }
-
-  const scrollStartPositionY = Math.round(window.scrollY);
-
-  const targetPositionYRelativeToViewport = Math.round(
-    scrollTargetElem.getBoundingClientRect().top
-  );
-
-  const targetPositionY =
-    targetPositionYRelativeToViewport + scrollStartPositionY;
-
-  const startScrollTime = performance.now();
-
-  animateSingleScrollFrame({
-    startScrollTime,
-    scrollDuration,
-    scrollStartPositionY,
-    targetPositionY,
-  });
-}
-```
-
-This dimension is absolute; we should know the length of the scroll path from the very start to the current frame point. The sign is for direction (we scroll up or down):
+Our desired value is absolute; we should know the length of the scroll path from the very start to the current frame point. The sign is for direction (we scroll up or down):
 
 ```js
 function animateSingleScrollFrame({
@@ -536,9 +509,15 @@ function animateSingleScrollFrame({
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
+    onAnimationEnd
   }) {
-  // ... previous stuff
-  
+
+  // ...
+
+  const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
+    absoluteAnimationProgress
+  );
+
   const currentScrollLength =
     (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
 }
@@ -552,7 +531,7 @@ function animateSingleScrollFrame({
 
 <img width="861" alt="image" src="https://user-images.githubusercontent.com/52240221/230451269-5f62aa5e-3121-4dc5-bfe2-51f4b32a91a7.png">
 
-### New position Y-coordinate
+### Let's scroll to the new Y-coordinate position!
 
 Alright, the purpose of the `animateSingleScrollFrame()` function is to actually scroll. We need to know the actual Y-coordinate of the point we're scrolling to, and since we've done all the preliminary calculations, we're ready to calculate the stopping scroll point for the current frame:
 
@@ -577,8 +556,6 @@ function animateSingleScrollFrame({
 
 #### Example #2
 <img width="1049" alt="image" src="https://user-images.githubusercontent.com/52240221/230455407-4fa18d89-2cc8-4939-8c7c-ad644236cafe.png">
-
-### Let's Scroll!
 
 Now it's time to scroll the page! Although it's not smooth at the moment, it works!
 
