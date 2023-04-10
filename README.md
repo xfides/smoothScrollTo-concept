@@ -16,7 +16,7 @@
 * [Function `animateSingleScrollFrame()` gives the progress of the animation](#function-animatesinglescrollframe-gives-the-progress-of-the-animation-table-of-contents)
   * [Calculate animation progress](#calculate-animation-progress)
   * [Calculate scroll length per frame](#calculate-scroll-length-per-frame)
-  * [Let's scroll to the new Y-coordinate position!](#lets-scroll-to-the-new-y-coordinate-position!)
+  * [Let's scroll to the new Y-coordinate position!](#lets-scroll-to-the-new-y-coordinate-position)
   
 
 ## Main idea ([Table of Contents](#contents))
@@ -536,19 +536,10 @@ function animateSingleScrollFrame({
 Alright, the purpose of the `animateSingleScrollFrame()` function is to actually scroll. We need to know the actual Y-coordinate of the point we're scrolling to, and since we've done all the preliminary calculations, we're ready to calculate the stopping scroll point for the current frame:
 
 ```js
-function animateSingleScrollFrame({
-    startScrollTime,
-    scrollDuration,
-    scrollStartPositionY,
-    targetPositionY,
-  }) {
-  // ... previous stuff
-  
   const currentScrollLength =
     (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
     
   const newPositionY = scrollStartPositionY + currentScrollLength;
-}
 ```
 
 #### Example #1
@@ -560,16 +551,28 @@ function animateSingleScrollFrame({
 Now it's time to scroll the page! Although it's not smooth at the moment, it works!
 
 ```js
-function animateSingleScrollFrame({
+function animateSingleScrollFrame(
+  {
     startScrollTime,
     scrollDuration,
     scrollStartPositionY,
     targetPositionY,
-  }) {
-  // ... previous stuff
-    
+    onAnimationEnd,
+  }
+) {
+  const elapsedTime = Math.max(currentTime - startScrollTime, 0);
+
+  const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
+
+  const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
+    absoluteAnimationProgress
+  );
+
+  const currentScrollLength =
+    (targetPositionY - scrollStartPositionY) * normalizedAnimationProgress;
+
   const newPositionY = scrollStartPositionY + currentScrollLength;
-  
+
   window.scrollTo({
     top: newPositionY,
   });
