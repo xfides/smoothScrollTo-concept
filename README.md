@@ -14,7 +14,8 @@
   * [Get the scroll start timestamp](#get-the-scroll-start-timestamp)
   * [Define animation per frame function](#define-animation-per-frame-function)
 * [Function `animateSingleScrollFrame()` gives the progress of the animation](#function-animatesinglescrollframe-gives-the-progress-of-the-animation-table-of-contents)
-  
+  * [Animation Progress](#animation-progress)
+  * [Scroll length per frame](#scroll-length-per-frame)
 
 ## Main idea ([Table of Contents](#contents))
 
@@ -25,8 +26,8 @@ You could check a [Full Demo on Codepen](https://codepen.io/nat-davydova/full/QW
 ## Prerequisites ([Table of Contents](#contents))
 
 For a good understanding of the article, the following are necessary:
-* basic layout: lists, positioning...
-* JavaScript: DOM, events, modules...
+* basic layout knowledge: lists, positioning,...
+* JavaScript knowledge: DOM, events,...
 * your good mood
 
 ## Basic layout ([Table of Contents](#contents))
@@ -391,7 +392,7 @@ Essentially, each animation is an event that occurs over a duration, and we can 
 
 So, we need a function that handles single frame motion, and based on it, we will build the entire animation
 
-Let's define it as `animateSingleScrollFrame()` somewhere outside. We call it inside the `smoothScrollTo()` as a draft, and pass `animationFrameSettings` for further calculations to `animateSingleScrollFrame()`. Almost complete `smoothScrollTo()` code is here. Why almost? Because the computer should call `animateSingleScrollFrame()` when drawing the frame, and not the programmer himself. We will definitely fix this point a little later.
+Let's define it as `animateSingleScrollFrame()` somewhere outside. We call it inside the `smoothScrollTo()` as a draft, and pass `animationFrameSettings` for further calculations to `animateSingleScrollFrame()`. Almost complete `smoothScrollTo()` code is here. Why almost? Because the browser should call `animateSingleScrollFrame()` when drawing the frame, and not the programmer himself. We will definitely fix this point a little later.
 
 ```js
 function smoothScrollTo({
@@ -435,46 +436,40 @@ For each frame, we want to check how much time has already been spent on the ani
 Technically, we would obtain a `currentTime` timestamp from `requestAnimationFrame()`, but we haven't implemented it yet. We will do so later. For now, we'll mock this value:
 
 ```js
-function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
   // The '100' here is a magic number, used for mock purposes only, 
   // and will be removed upon the implementation of requestAnimationFrame()
   const currentTime = performance.now() + 100;
-}
 ```
-
-### Elapsed Time
 
 The elapsed time will be used to calculate the animation progress. When we implement `requestAnimationFrame()`, `currentTime` (and therefore, `elapsedTime`) will be updated on each Event Loop tick.
 
 ```js
 function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
-  // ... previous stuff
+
+  // The '100' here is a magic number, used for mock purposes only, 
+  // and will be removed upon the implementation of requestAnimationFrame()
+  const currentTime = performance.now() + 100;
   
   // It's currently equal to 100ms due to the mock value
   const elapsedTime = currentTime - startScrollTime;
+  
+  // ...
 }
 ```
 
 ### Animation Progress
 
-The animation progress, which we calculate with the help of ёelapsedTimeё, shows how much of the animation is completed. We need an absolute progress ranging from 0 (beginning of the animation) to 1 (end of animation). This will help us calculate the scroll length in pixels per current frame later on
+The animation progress, which we calculate with the help of `elapsedTime`, shows how much of the animation is completed. We need an absolute progress ranging from 0 (beginning of the animation) to 1 (end of animation). This will help us calculate the scroll length in pixels per current frame later on
 
-It will be updated on each Event Loop tick.
+It will be updated on each Event Loop tick. We use `Math.min()` here because in real life a frame can be calculated in time that is already longer than the given `scrollDuration`. However, the animation progress end position must not exceed 1.
 
 ```js
-function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
-  // ... previous stuff
-  
-  // If the progress exceeds 100% due to some browser lag, we'll stop at 1 and avoid errors here
+  // If the progress exceeds 100% due to some browser lag, 
+  // we'll stop at 1 and avoid errors here
   const absoluteAnimationProgress = Math.min(elapsedTime / scrollDuration, 1);
-}
 ```
 
-### Animation Progress normalization by Bezier Curve
-
-#### Animation Easings
-
-If you want a simple linear animation, you can skip this step. However, we often prefer non-linear animations that are a bit more intricate, featuring nice easing effects, such as starting slow, speeding up, and then slowing down again towards the end.
+Now we have a linear animation progress. However, we often prefer non-linear animations that are a bit more intricate, featuring nice easing effects, such as starting slow, speeding up, and then slowing down again towards the end.
 
 You can explore the most popular animation easing types based on Bezier Curves at [easings.net](https://easings.net/#). I've chosen the [easeInOutQuad](https://easings.net/#easeInOutQuad) mode for this project. On this page, you can find a function that calculates this easing effect:
 
@@ -490,25 +485,15 @@ This easing function takes the absolute animation progress, ranging between 0 an
 
 If our animation progress is less than `50%`, it will increase this progress, so the animation starts slowly and then speeds up. If the progress is more than `50%`, the animation will smoothly slow down.
 
-#### Animation Progress Normalization
-
 Let's create a wrapper function that takes `animationProgress` as a parameter and returns normalized progress from `easeInOutQuadProgress()`. I'm adding this extra function because later, we may want to handle more than just a single easing mode
 
 ```js 
-function animateSingleScrollFrame({startScrollTime, scrollDuration }) {
-  // ... previous stuff
-  
-  const normalizedAnimationProgress = normalizeAnimationProgressByBezierCurve(
-    absoluteAnimationProgress
-  );
-}
-
 function normalizeAnimationProgressByBezierCurve(animationProgress: number) {
   return easeInOutQuadProgress(animationProgress);
 }
 ```
 
-### Scroll length per frame
+## Scroll length per frame
 
 The next step is to calculate how many pixels we should scroll during this animation frame, based on normalized animation progress and two coordinates: start position and target position. 
 
